@@ -1,0 +1,4 @@
+import test from "node:test"; import assert from "node:assert/strict"; import fs from "node:fs";
+const read=(path)=>fs.readFileSync(new URL(`../${path}`,import.meta.url),"utf8");
+test("sino consulta central, mostra contador e permite leitura",()=>{const header=read("src/components/admin/AdminHeader.jsx");assert.match(header,/getNotificationCenter/);assert.match(header,/unread_count/);assert.match(header,/Marcar todas como lidas/);assert.match(header,/markNotificationRead/)});
+test("leituras são individuais e protegidas por auth.uid",()=>{const sql=read("supabase/migrations/20260804300000_notification_center_automations.sql");assert.match(sql,/admin_notification_reads/);assert.match(sql,/admin_user_id=auth\.uid\(\)/);assert.match(sql,/event_key_unique/);assert.match(sql,/tab=pagamentos&request=/)});

@@ -1,0 +1,31 @@
+# 15 — Glossário
+
+- **API:** caminho padronizado para sistemas trocarem dados e comandos.
+- **Frontend:** parte visual executada no navegador; neste projeto, React.
+- **Backend:** serviços que guardam dados e aplicam regras; aqui, Supabase/PostgreSQL e Edge Functions.
+- **Banco de dados:** armazenamento estruturado e consultável das informações.
+- **Supabase:** plataforma usada para banco, login, arquivos e funções de servidor.
+- **RLS:** Row Level Security; regras do banco que decidem quais linhas cada usuário pode acessar.
+- **RPC:** função do banco chamada remotamente como uma operação única.
+- **Edge Function:** código de servidor executado sob demanda no Supabase.
+- **Storage:** serviço para armazenar arquivos fora das tabelas.
+- **Bucket:** contêiner lógico de arquivos no Storage.
+- **Signed URL:** link temporário assinado para abrir um arquivo privado.
+- **Migration:** arquivo versionado que altera o schema do banco de forma reproduzível.
+- **JWT:** token assinado que transporta identidade e claims da sessão.
+- **`app_metadata`:** metadados protegidos da conta; aqui contém o papel administrativo.
+- **Vault:** cofre criptografado do banco para valores usados por automações.
+- **Secret:** valor confidencial disponível somente ao ambiente autorizado.
+- **Cron:** agendador que executa tarefas em horários definidos.
+- **`pg_cron`:** extensão PostgreSQL que agenda comandos SQL.
+- **Resend:** provedor que entrega e-mails transacionais e campanhas.
+- **SMTP:** protocolo de envio de e-mail; o Supabase Auth o usa na recuperação de senha.
+- **Idempotência:** garantia de que repetir uma operação não duplica seu efeito.
+- **Transação:** conjunto de alterações que confirma inteiro ou é desfeito inteiro.
+- **Trigger:** função acionada automaticamente por evento no banco.
+- **Cache:** cópia temporária para evitar consultas repetidas; precisa ser invalidada quando a origem muda.
+- **Bundle:** arquivos JavaScript/CSS preparados pelo build para o navegador.
+- **Deploy:** publicação de uma versão em um ambiente executável.
+- **Git:** ferramenta que registra versões dos arquivos.
+- **Repositório:** pasta versionada com código, histórico e documentação.
+- **Monorepositório:** repositório que reúne partes relacionadas; aqui, frontend e backend Supabase.

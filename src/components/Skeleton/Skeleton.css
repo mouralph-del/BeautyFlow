@@ -1,0 +1,26 @@
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+.skeleton::after{
+  content: "";
+  position: absolute;
+  top:0;left:-150px;
+  height:100%;width:150px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  animation: shimmer 1.2s infinite;
+}
+@keyframes shimmer{to{left:100%}}
+
+.skeleton--avatar{width:58px;height:58px;border-radius:50%;}
+.skeleton--card{height:160px;padding:16px;border-radius:12px}
+.skeleton--list-item{height:72px;padding:12px;border-radius:12px}
+.skeleton--form-row{height:40px;margin-bottom:12px;border-radius:8px}
+.skeleton--details-line{height:18px;margin-bottom:8px;border-radius:6px}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce){
+  .skeleton::after{animation:none;display:none}
+}

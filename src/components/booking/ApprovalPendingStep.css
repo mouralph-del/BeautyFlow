@@ -1,0 +1,210 @@
+.approval-pending-step {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 28px 44px;
+  text-align: center;
+}
+
+.approval-pending-step h2 {
+  margin: 0;
+
+  color: #38271f;
+  font-size: 30px;
+  line-height: 1.25;
+}
+
+.approval-subtitle {
+  max-width: 560px;
+  margin: 14px auto 28px;
+
+  color: #786961;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.approval-status-card {
+  padding: 22px;
+
+  background: #fffaf4;
+  border: 1px solid #ead8c5;
+  border-radius: 16px;
+
+  text-align: left;
+}
+
+.approval-status-label {
+  display: block;
+  margin-bottom: 12px;
+
+  color: #8a7669;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.approval-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.approval-status-dot {
+  width: 11px;
+  height: 11px;
+
+  background: #e1ad36;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(225, 173, 54, 0.15);
+}
+
+.approval-status strong {
+  color: #48362c;
+  font-size: 18px;
+}
+
+.approval-status-card p {
+  margin: 14px 0 0;
+
+  color: #76675e;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.approval-next-steps {
+  margin-top: 22px;
+  padding: 24px;
+
+  background: #fff;
+  border: 1px solid #ece3da;
+  border-radius: 16px;
+
+  text-align: left;
+}
+
+.approval-next-steps h3 {
+  margin: 0 0 18px;
+
+  color: #3e2c24;
+  font-size: 19px;
+}
+
+.approval-next-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin-bottom: 14px;
+}
+
+.approval-next-item span {
+  color: #ad734c;
+  font-weight: 700;
+}
+
+.approval-next-item p {
+  margin: 0;
+
+  color: #685950;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.approval-email-info {
+  margin-top: 18px;
+  padding-top: 18px;
+
+  border-top: 1px solid #eee5de;
+}
+
+.approval-email-info strong {
+  color: #4a372d;
+  font-size: 14px;
+}
+
+.approval-email-info ul {
+  margin: 12px 0 0;
+  padding-left: 20px;
+
+  color: #77675e;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.approval-thanks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin-top: 38px;
+  background: transparent;
+  text-align: center;
+}
+
+.approval-thanks__logo {
+  --brand-logo-width: 190px;
+  --brand-mark-size: 56px;
+  --brand-name-size: 19px;
+  --brand-studio-size: 8px;
+  margin-bottom: 18px;
+}
+
+.approval-thanks p {
+  margin: 0 0 4px;
+
+  color: #8b7a70;
+  font-size: 14px;
+}
+
+.approval-thanks strong {
+  color: #453229;
+  font-size: 19px;
+  line-height: 1.3;
+}
+
+.approval-thanks span {
+  margin-top: 7px;
+
+  color: #796960;
+  font-size: 14px;
+}
+
+.approval-home-button {
+  min-width: 220px;
+  height: 50px;
+  margin-top: 24px;
+  padding: 0 24px;
+
+  background: #b98259;
+  border: none;
+  border-radius: 13px;
+
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.approval-home-button:hover {
+  background: #a46f49;
+}
+
+@media (max-width: 600px) {
+  .approval-pending-step {
+    padding: 32px 16px;
+  }
+
+  .approval-pending-step h2 {
+    font-size: 25px;
+  }
+
+  .approval-status-card,
+  .approval-next-steps {
+    padding: 18px;
+  }
+
+  .approval-home-button {
+    width: 100%;
+  }
+}

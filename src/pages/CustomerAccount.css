@@ -1,0 +1,83 @@
+.customer-account-page { min-height:100vh; padding:55px max(20px, calc((100% - 1120px)/2)) 90px; background:linear-gradient(180deg,#fffdfb,#faf6f1); color:#49372e; }
+.customer-page-hero { max-width:720px; margin-bottom:36px; }
+.customer-page-hero > span { color:#9a6543; font-size:12px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+.customer-page-hero h1 { margin:8px 0 10px; color:#30221c; font-family:Georgia,serif; font-size:clamp(36px,5vw,52px); }
+.customer-page-hero p { color:#776960; line-height:1.65; }
+.customer-tabs { display:flex; gap:8px; margin-bottom:28px; padding-bottom:5px; overflow-x:auto; }
+.customer-tabs button { display:flex; align-items:center; gap:8px; flex:0 0 auto; padding:12px 17px; border:1px solid #e5d6ca; border-radius:999px; background:#fff; color:#69564b; font:inherit; font-weight:700; cursor:pointer; }
+.customer-tabs button[aria-selected="true"] { border-color:#9a6543; background:#9a6543; color:#fff; }
+.customer-tabs button span { display:grid; min-width:20px; height:20px; place-items:center; border-radius:50%; background:rgba(140,92,62,.11); font-size:11px; }
+.customer-appointments-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+.customer-account-page .customer-appointment-card { overflow:hidden; border:1px solid #eadbd0; border-radius:18px; background:#fff; box-shadow:0 12px 30px rgba(60,40,30,.06); }
+.customer-account-page .customer-appointment-card > img { width:100%; height:180px; object-fit:cover; }
+.customer-account-page .customer-appointment-card__body { padding:22px; }
+.customer-account-page .customer-appointment-card__body h3 { margin:9px 0 14px; font-family:Georgia,serif; font-size:21px; }
+.customer-account-page .customer-appointment-card__facts { display:grid; gap:8px; color:#776960; font-size:14px; }
+.customer-account-page .customer-appointment-card__facts span { display:flex; align-items:center; gap:8px; }
+.customer-account-page .customer-appointment-card__body > strong { display:block; margin-top:16px; color:#87583e; }
+.customer-appointment-card__actions { margin-top:16px; padding-top:14px; border-top:1px solid #eee3db; }
+.customer-appointment-card__actions a { color:#87583e; font-weight:700; text-decoration:none; }
+.customer-account-page .customer-status { display:inline-flex; padding:5px 9px; border-radius:999px; background:#f3e8df; font-size:10px; font-weight:800; text-transform:uppercase; }
+.customer-empty--page { align-items:center; min-height:300px; padding:40px; border:1px dashed #dbc9bd; border-radius:20px; background:#fff; text-align:center; }
+.customer-empty--page h2 { margin:0; font-family:Georgia,serif; }
+.customer-empty--page a { padding:12px 18px; border-radius:10px; background:#9a6543; color:#fff; text-decoration:none; }
+.customer-loading { padding:50px 0; color:#776960; text-align:center; }
+.customer-settings { max-width:none; }
+.customer-settings-card { max-width:900px; margin:0 auto 22px; padding:30px; border:1px solid #eadbd0; border-radius:20px; background:#fff; box-shadow:0 10px 28px rgba(60,40,30,.045); }
+.customer-settings-card__title { display:flex; gap:13px; margin-bottom:25px; }
+.customer-settings-card__title > svg { color:#9a6543; }
+.customer-settings-card h2 { margin:0 0 5px; font-family:Georgia,serif; }
+.customer-settings-card p { margin:0; color:#7a6a61; }
+.customer-photo-editor { display:flex; align-items:center; gap:18px; margin-bottom:26px; }
+.customer-photo { position:relative; display:grid; width:90px; height:90px; flex:0 0 auto; padding:0; place-items:center; overflow:hidden; border:1px solid #ddcabd; border-radius:50%; background:#f3e6dc; color:#87583e; cursor:pointer; }
+.customer-photo > span { font-family:Georgia,serif; font-size:32px; }
+.customer-photo > img { width:100%; height:100%; object-fit:cover; }
+.customer-photo--static { cursor:default; font-family:Georgia,serif; font-size:32px; }
+.customer-photo i { position:absolute; right:3px; bottom:3px; display:grid; width:28px; height:28px; place-items:center; border-radius:50%; background:#84563e; color:#fff; }
+.customer-photo-editor div { display:grid; gap:5px; }
+.customer-text-button { width:fit-content; padding:0; border:0; background:transparent; color:#8a5738; font:inherit; font-weight:700; cursor:pointer; }
+.customer-photo-crop { display:flex; align-items:center; gap:18px; margin:-5px 0 25px; padding:18px; border-radius:14px; background:#faf4ef; }
+.customer-photo-crop > div { width:82px; height:82px; flex:0 0 auto; overflow:hidden; border-radius:50%; }
+.customer-photo-crop img { width:100%; height:100%; object-fit:cover; }
+.customer-photo-crop label { display:grid; flex:1; gap:6px; font-size:13px; }
+.customer-photo-crop button,.customer-form button,.customer-preferences > button { padding:12px 17px; border:0; border-radius:9px; background:#9a6543; color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+.customer-form { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.customer-form label { display:grid; gap:7px; color:#59463b; font-size:13px; font-weight:700; }
+.customer-form label:first-child { grid-column:1/-1; }
+.customer-form input,.customer-danger input { width:100%; padding:12px 13px; border:1px solid #ddcfc5; border-radius:9px; background:#fffdfa; color:#3f3029; font:inherit; }
+.customer-form label > small { color:#96867c; font-weight:400; }
+.customer-form > button { align-self:end; justify-self:start; }
+.customer-form--compact { grid-template-columns:1fr auto; padding:18px 0; border-top:1px solid #eee4dc; }
+.customer-form--compact label:first-child { grid-column:auto; }
+.customer-password-form { display:grid; gap:14px; padding-top:20px; border-top:1px solid #eee4dc; }
+.customer-password-form label { display:grid; gap:7px; font-size:13px; font-weight:700; }
+.customer-password-form input { width:100%; height:46px; box-sizing:border-box; border:1px solid #ddcfc5; border-radius:9px; background:#fffdfa; font:inherit; }
+.customer-password-meter { display:grid; grid-template-columns:1fr auto; align-items:center; gap:10px; }
+.customer-password-meter span { height:7px; border-radius:999px; background:linear-gradient(to right,#b85f55 33%,#eadfd8 33%); }
+.customer-password-meter--2 span { background:linear-gradient(to right,#c49345 66%,#eadfd8 66%); }
+.customer-password-meter--3 span { background:#568064; }
+.customer-password-form ul { margin:0; padding-left:20px; color:#8b7970; font-size:12px; }
+.customer-password-form li.ok { color:#477157; }
+.customer-password-form > button,.customer-secondary-action { width:fit-content; padding:12px 17px; border:0; border-radius:9px; background:#9a6543; color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+.customer-secondary-action { margin-top:20px; border:1px solid #caa991; background:#fff; color:#805239; }
+.customer-preferences { display:grid; gap:0; }
+.customer-preferences label { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:17px 0; border-top:1px solid #eee4dc; }
+.customer-preferences label span { display:grid; gap:4px; }
+.customer-preferences label small { color:#8a7a70; }
+.customer-preferences input { width:42px; height:22px; accent-color:#9a6543; }
+.customer-preferences > button { width:fit-content; margin-top:15px; }
+.customer-security { margin:0; }
+.customer-security div { display:flex; justify-content:space-between; gap:20px; padding:14px 0; border-top:1px solid #eee4dc; }
+.customer-security dt { color:#78685f; }
+.customer-security dd { margin:0; font-weight:700; text-align:right; }
+.customer-danger { border-color:#e6c6c0; background:#fffafa; }
+.customer-danger label { display:grid; gap:8px; max-width:430px; margin:20px 0 15px; }
+.customer-danger button { padding:11px 16px; border:1px solid #b96155; border-radius:9px; background:#fff; color:#9e453b; font-weight:700; }
+.customer-danger button:disabled { opacity:.45; }
+.customer-form-message { max-width:900px; margin:0 auto 20px; padding:13px 16px; border-radius:10px; background:#edf5ed; color:#3e6a45; }
+.customer-form-message.is-error { background:#faece9; color:#934a40; }
+@media(max-width:850px){.customer-appointments-grid{grid-template-columns:1fr 1fr}.customer-form{grid-template-columns:1fr}.customer-form label:first-child{grid-column:auto}}
+@media(max-width:600px){.customer-account-page{padding:35px 14px 70px}.customer-appointments-grid{grid-template-columns:1fr}.customer-settings-card{padding:22px 18px}.customer-photo-crop{align-items:stretch;flex-direction:column}.customer-form--compact{grid-template-columns:1fr}.customer-form>button,.customer-preferences>button{width:100%}.customer-security div{flex-direction:column;gap:5px}.customer-security dd{text-align:left}}
+*:focus-visible { outline:3px solid rgba(154,101,67,.35); outline-offset:3px; }
+@media(max-width:600px){.customer-password-form>button,.customer-secondary-action{width:100%}}
+@media(prefers-reduced-motion:reduce){.customer-drawer,.customer-drawer-backdrop{transition:none!important}}

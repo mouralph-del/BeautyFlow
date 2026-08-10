@@ -1,0 +1,15 @@
+.bf-modal-overlay{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;padding:24px;background:rgba(45,32,26,.48);overflow:auto}
+.bf-modal{box-sizing:border-box;background:#fff;max-width:min(820px,100%);width:100%;max-height:calc(100dvh - 48px);overflow:auto;overflow-x:hidden;overscroll-behavior:contain;border-radius:16px;padding:22px;box-shadow:0 28px 70px rgba(45,31,24,.24);}
+.bf-modal--drawer{align-self:stretch;justify-self:end;max-width:min(520px,100%);width:100%;max-height:100vh;border-radius:0 24px 24px 0;}
+.bf-modal--drawer .bf-modal-title{margin-top:0}
+.bf-modal:focus{outline:none}
+.bf-modal-title{margin:0 0 12px;font-size:22px}
+
+@media (max-width:640px){
+  .bf-modal-overlay{padding:12px}
+  .bf-modal--drawer{justify-self:center;border-radius:16px;width:100%;}
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bf-modal, .bf-modal-overlay { transition: none !important; }
+}

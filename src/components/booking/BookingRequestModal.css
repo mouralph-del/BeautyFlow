@@ -1,0 +1,74 @@
+.request-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.request-modal {
+  width: 100%;
+  max-width: 500px;
+  padding: 28px;
+
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.request-modal h2 {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.request-modal p {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.request-modal-summary{display:grid;gap:8px;margin:18px 0;padding:16px;border-radius:12px;background:#faf5f1}.request-modal-summary div{display:flex;justify-content:space-between;gap:16px}.request-modal-summary dt{color:#806d61}.request-modal-summary dd{margin:0;color:#3e2d24;font-weight:700;text-align:right}.request-modal-period{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0;padding:0;border:0}.request-modal-period legend{width:100%;margin-bottom:4px;color:#3e2d24;font-weight:700}.request-modal-period label{display:flex;align-items:center;gap:6px;padding:10px 12px;border:1px solid #e3d3c7;border-radius:10px}.request-modal-field{display:grid;gap:7px;margin-top:14px;color:#49362b;font-weight:700}.request-modal-field input,.request-modal-field textarea{padding:12px;border:1px solid #dfcfc3;border-radius:10px;font:inherit}.request-modal-notice{padding:12px;border-radius:10px;background:#f8f1eb;color:#765e50;font-size:13px}
+
+.request-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  margin-top: 24px;
+}
+
+.request-modal-actions button {
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.request-cancel-button {
+  background: transparent;
+  border: 1px solid #b8a89e;
+}
+
+.request-confirm-button {
+  border: none;
+  background: #684a36;
+  color: #ffffff;
+}
+
+.request-modal-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (max-width: 520px) {
+  .request-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .request-modal-actions button {
+    width: 100%;
+  }
+}

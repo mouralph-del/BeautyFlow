@@ -1,0 +1,12 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import test from "node:test";
+import { getAdminFirstName, getClosingMessage, getGreeting, getLocalDateKey, getMorningMessage } from "../src/utils/dailyExperience.js";
+const atSaoPauloHour=(hour)=>new Date(Date.UTC(2026,7,4,hour+3));
+test("saudação respeita manhã, tarde e noite em São Paulo",()=>{assert.equal(getGreeting(atSaoPauloHour(8),"Thaís"),"Bom dia, Thaís! 🤎");assert.equal(getGreeting(atSaoPauloHour(14),"Laysla"),"Boa tarde, Laysla! 🤎");assert.equal(getGreeting(atSaoPauloHour(22),"Thaís"),"Boa noite, Thaís! 🤎")});
+test("timezone de São Paulo define a data local",()=>assert.equal(getLocalDateKey(new Date("2026-08-05T01:30:00Z")),"2026-08-04"));
+test("nome não é inferido do e-mail",()=>{assert.equal(getAdminFirstName({email:"pessoa@example.com"}),"");assert.equal(getGreeting(atSaoPauloHour(8),""),"Olá! Que bom ter você por aqui. 🤎")});
+test("mensagens refletem dia tranquilo, movimentado e pendências",()=>{assert.match(getMorningMessage({appointments:0}),/nova oportunidade/);assert.match(getMorningMessage({appointments:6}),/movimentado/);assert.match(getClosingMessage({pending:1}),/pendências/)});
+test("migration estabiliza conteúdos e mantém encerramento manual",()=>{const sql=readFileSync("supabase/migrations/20260804600000_admin_daily_experience.sql","utf8");assert.match(sql,/primary key\(local_date,period\)/);assert.match(sql,/pg_advisory_xact_lock/);assert.match(sql,/last_used_at asc nulls first/);assert.match(sql,/unique\(local_date,admin_user_id\)/);assert.doesNotMatch(sql,/cron\.schedule/);assert.match(sql,/end_of_day_email_enabled boolean not null default false/)});
+test("preferência e event key protegem o resumo",()=>{const sql=readFileSync("supabase/migrations/20260804600000_admin_daily_experience.sql","utf8");const worker=readFileSync("supabase/functions/_shared/email.ts","utf8");assert.match(sql,/requires_daily_summary_email/);assert.match(worker,/daily_summary_email_enabled/);assert.match(worker,/daily-summary:\$\{target\.admin_user_id/)});
+test("somente administradoras acessam a experiência",()=>{const sql=readFileSync("supabase/migrations/20260804600000_admin_daily_experience.sql","utf8");assert.match(sql,/if not public\.is_admin\(\) then raise exception 'Acesso negado'/);assert.match(sql,/admin_user_id=auth\.uid\(\)/)});

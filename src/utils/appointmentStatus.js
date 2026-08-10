@@ -1,0 +1,10 @@
+export const normalizeStatus = (status = "") => String(status).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+export const COMPLETED_APPOINTMENT_STATUSES = new Set(["concluido", "realizado", "finalizado"]);
+export const CANCELLED_APPOINTMENT_STATUSES = new Set(["cancelado", "cancelada", "recusado", "recusada"]);
+export const RESCHEDULED_APPOINTMENT_STATUSES = new Set(["reagendado", "reagendada", "remarcado", "remarcada"]);
+export const ACTIVE_APPOINTMENT_STATUSES = new Set(["confirmado", "confirmada", "aguardando_pagamento", "aguardando_aprovacao", "pagamento_em_analise", "em_analise", "encaixe_confirmado", "aprovado"]);
+export const INACTIVE_APPOINTMENT_STATUSES = new Set(["expirado", "expirada", "nao_compareceu", "ausente"]);
+export const isCompletedAppointment = (appointment) => COMPLETED_APPOINTMENT_STATUSES.has(normalizeStatus(appointment?.status));
+export const isActiveAppointment = (appointment) => ACTIVE_APPOINTMENT_STATUSES.has(normalizeStatus(appointment?.status));
+export const appointmentGroup = (appointment) => {const status=normalizeStatus(appointment?.status);if(CANCELLED_APPOINTMENT_STATUSES.has(status))return "cancelados";if(RESCHEDULED_APPOINTMENT_STATUSES.has(status))return "reagendados";if(COMPLETED_APPOINTMENT_STATUSES.has(status))return "concluidos";if(ACTIVE_APPOINTMENT_STATUSES.has(status)&&!INACTIVE_APPOINTMENT_STATUSES.has(status))return "proximos";return "outros"};
+export const getAppointmentActions = (appointment) => {const status=normalizeStatus(appointment?.status);if(COMPLETED_APPOINTMENT_STATUSES.has(status)||CANCELLED_APPOINTMENT_STATUSES.has(status)||INACTIVE_APPOINTMENT_STATUSES.has(status))return[];if(status==="aguardando_pagamento")return["payment"];if(status==="aguardando_resposta_cliente")return["fit-response"];return ACTIVE_APPOINTMENT_STATUSES.has(status)?["cancel","reschedule"]:[]};

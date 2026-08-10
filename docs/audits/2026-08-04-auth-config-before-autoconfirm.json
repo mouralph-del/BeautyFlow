@@ -1,0 +1,8 @@
+{
+  "project_ref": "uckezdozxfnctorbhwfh",
+  "captured_at": "2026-08-04",
+  "external_email_enabled": true,
+  "mailer_autoconfirm": false,
+  "mailer_secure_email_change_enabled": true,
+  "note": "Registro não sensível anterior à alteração; SMTP, secrets, templates, rate limits e hooks foram omitidos."
+}

@@ -1,0 +1,16 @@
+import { Bell, Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/useAuth";
+import { getNotificationCenter, markNotificationRead } from "../../services/adminNotifications";
+import { getUserDisplayName, getUserInitials } from "../../utils/authUser";
+import { formatRelativeTime } from "../../utils/relativeTime";
+import useAccessibleDrawer from "../../hooks/useAccessibleDrawer";
+
+export default function AdminHeader({notifications:fallbackCount=0,onOpenMenu}){
+ const {user,signOut}=useAuth();const navigate=useNavigate();const[open,setOpen]=useState(false);const[center,setCenter]=useState({items:[],unread_count:fallbackCount});const[loading,setLoading]=useState(false);const[error,setError]=useState("");
+ const notificationRef=useAccessibleDrawer(open,()=>setOpen(false));
+ const load=async()=>{setLoading(true);setError("");try{setCenter(await getNotificationCenter())}catch{setError("Não foi possível carregar as notificações.")}finally{setLoading(false)}};useEffect(()=>{load()},[]);
+ const openItem=async(item)=>{try{if(!item.is_read){await markNotificationRead(item.id);await load()}}finally{setOpen(false);if(item.action_url)navigate(item.action_url)}};const logout=async()=>{await signOut();navigate("/")};
+ return <header className="admin-header"><div className="admin-header__title"><button type="button" className="admin-menu-button" onClick={onOpenMenu} aria-label="Abrir menu"><Menu size={21}/></button><div><strong>Beauty Studio</strong><span>Painel Administrativo</span></div></div><div className="admin-header__actions"><button type="button" className="admin-notifications" aria-label="Abrir notificações" onClick={()=>{setOpen(true);load()}}><Bell size={19}/>{center.unread_count>0&&<b>{center.unread_count}</b>}</button><details className="admin-profile"><summary><span className="admin-profile__avatar">{getUserInitials(user)}</span><span><strong>{getUserDisplayName(user)}</strong><small>Administrador</small></span></summary><div><span>{user?.email}</span><Link to="/admin/configuracoes">Configurações</Link><button type="button" onClick={logout}>Sair</button></div></details></div>{open&&<><button className="notification-center-overlay" aria-label="Fechar notificações" onClick={()=>setOpen(false)}/><aside ref={notificationRef} className="notification-center" role="dialog" aria-modal="true" aria-labelledby="notification-center-title" tabIndex={-1}><header><div><small>ATUALIZAÇÕES</small><h2 id="notification-center-title">Notificações</h2></div><button type="button" onClick={()=>setOpen(false)} aria-label="Fechar"><X/></button></header>{center.items.length>0&&<button className="notification-read-all" onClick={async()=>{await markNotificationRead();await load()}}>Marcar todas como lidas</button>}<div>{loading?<p>Carregando notificações...</p>:error?<p className="error">{error}</p>:center.items.length===0?<p>Nenhuma notificação por enquanto.</p>:center.items.map(item=><button key={item.id} className={item.is_read?"":"unread"} onClick={()=>openItem(item)}><span>{item.category}</span><strong>{item.title}</strong><p>{item.message}</p><time>{formatRelativeTime(item.created_at)}</time></button>)}</div></aside></>}</header>
+}
