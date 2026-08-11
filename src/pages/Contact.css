@@ -253,7 +253,7 @@
 
   .contact-cards article,
   .contact-hours {
-    padding: 27px 22px;
+    padding: 23px 19px;
   }
 
   .contact-card__actions,
@@ -269,11 +269,13 @@
   }
 
   .contact-map iframe {
-    height: 340px;
+    height: 300px;
   }
 
   .contact-hours dl > div {
     grid-template-columns: 1fr;
     gap: 5px;
   }
+
+  .contact-hero h1 { font-size:clamp(34px,10vw,46px); }
 }

@@ -259,8 +259,13 @@
   }
 
   .auth-card {
-    padding: 28px 20px;
+    padding: 24px 18px;
+    border-radius:16px;
   }
+
+  .auth-card h1 { font-size:29px; line-height:1.15; }
+  .auth-card form { gap:14px; margin-top:22px; }
+  .auth-card input,.auth-card form > button { min-height:48px; }
 
   .auth-form-actions {
     grid-template-columns: 1fr;

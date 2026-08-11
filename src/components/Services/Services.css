@@ -44,12 +44,15 @@
 
 @media (max-width: 600px) {
   .services {
-    padding: 65px 0;
+    padding: 48px 16px 58px;
   }
 
   .services__grid {
     grid-template-columns: 1fr;
-    gap: 22px;
-    margin-top: 32px;
+    gap: 14px;
+    margin-top: 24px;
   }
+
+  .home-services-heading { margin-bottom:26px; }
+  .home-services-heading h2 { font-size:30px; }
 }

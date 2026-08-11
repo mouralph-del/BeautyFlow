@@ -300,8 +300,11 @@
   }
 
   .story-portrait {
-    min-height: 442px;
+    min-height: 420px;
   }
+
+  .story-portrait img { height:398px; }
+  .story-introduction h1 { font-size:clamp(36px,10vw,48px); }
 
   .timeline-track {
     grid-template-columns: 1fr;
@@ -333,6 +336,8 @@
 }
 
 @media (max-width: 480px) {
+  .story-portrait { min-height:372px; padding:14px 0 0 14px; }
+  .story-portrait img { height:358px; }
   .journey-grid {
     grid-template-columns: 1fr;
   }

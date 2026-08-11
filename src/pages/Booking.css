@@ -164,9 +164,19 @@
 }
 
 @media (max-width: 600px) {
+  .booking { padding:0 14px; }
+  .booking h1 { margin-bottom:28px; }
+  .booking__service,.selected-services,.additional-services,.review-card,.review-info { padding:18px; border-radius:14px; }
+  .booking__info { gap:12px 18px; margin-top:20px; }
+  .booking__calendar,.booking__times,.booking__customer { margin-top:34px; }
   .booking__times-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap:10px;
   }
+}
+
+@media (max-width: 1024px) {
+  .booking-back-button,.booking-back-button:hover { transform:none; }
 }
 
 .booking__time--selected {

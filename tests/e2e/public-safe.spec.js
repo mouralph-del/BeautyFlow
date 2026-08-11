@@ -8,6 +8,8 @@ test.beforeEach(async ({ page }) => {
 test("visitante navega por páginas públicas sem escrita", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("header")).toBeVisible();
+  const mobileMenu = page.getByRole("button", { name: "Abrir menu" });
+  if (await mobileMenu.isVisible()) await mobileMenu.click();
   await page.getByRole("link", { name: /serviços/i }).first().click();
   await expect(page).toHaveURL(/\/servicos$/);
   await page.goto("/recuperar-senha");

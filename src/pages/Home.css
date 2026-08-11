@@ -70,3 +70,10 @@
     border-left: none;
   }
 }
+
+@media (max-width: 560px) {
+  .home-benefits { margin:0 16px; padding:12px 18px; border-radius:15px; }
+  .home-benefit { gap:13px; padding:14px 2px; }
+  .home-benefit-icon { width:42px; height:42px; font-size:19px; }
+  .home-benefit strong { margin-bottom:3px; font-size:14px; }
+}
