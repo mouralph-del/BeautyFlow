@@ -18,6 +18,13 @@ import BookingStepper from "../components/booking/BookingStepper";
 import BookingTimeSlots from "../components/booking/BookingTimeSlots";
 import useServiceCatalog from "../hooks/useServiceCatalog";
 import usePromotions from "../hooks/usePromotions";
+import useBookingSelection from "../hooks/useBookingSelection";
+import useBookingCustomer, {
+  formatWhatsApp,
+  isValidEmail,
+  isValidWhatsApp,
+} from "../hooks/useBookingCustomer";
+import useFitRequestFlow from "../hooks/useFitRequestFlow";
 import Layout from "../layouts/Layout";
 import { createBookingRequest, submitFitPaymentProof } from "../services/bookingRequests";
 import {
@@ -39,33 +46,6 @@ import "./Booking.css";
 import { formatErrorMessage } from "../components/Error/errorMapper";
 
 registerLocale("pt-BR", ptBR);
-
-const formatWhatsApp = (value) => {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
-
-  if (!digits) {
-    return "";
-  }
-
-  if (digits.length <= 2) {
-    return `(${digits}`;
-  }
-
-  if (digits.length <= 7) {
-    return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-  }
-
-  return `(${digits.slice(0, 2)}) ${digits.slice(
-    2,
-    7
-  )}-${digits.slice(7)}`;
-};
-
-const isValidWhatsApp = (value) =>
-  /^\(\d{2}\) \d{5}-\d{4}$/.test(value);
-
-const isValidEmail = (value) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
 const currencyToNumber = (value) => {
   const normalizedValue = String(value ?? "")
@@ -149,10 +129,15 @@ function Booking() {
 
   const [selectedDate, setSelectedDate] = useState(fitPayment?.appointmentDate ? new Date(`${fitPayment.appointmentDate}T12:00:00`) : null);
   const [selectedTime, setSelectedTime] = useState(fitPayment?.appointmentTime || "");
-  const [selectedServices, setSelectedServices] = useState(() => {
-    const requested = Array.isArray(preselectedServiceIds) ? services.filter((item) => preselectedServiceIds.map(String).includes(String(item.id))) : [];
-    return requested.length ? requested : service ? [service] : [];
-  });
+  const {
+    selectedServices,
+    setSelectedServices,
+    showServiceSelector,
+    addService,
+    removeService,
+    openServiceSelector,
+    closeServiceSelector,
+  } = useBookingSelection({ services, service, preselectedServiceIds });
 
   useEffect(() => {
     if (!service) return;
@@ -161,37 +146,45 @@ function Booking() {
         currentService.id === Number(id) ? service : currentService
       )
     );
-  }, [id, service]);
-  const [showServiceSelector, setShowServiceSelector] = useState(false);
+  }, [id, service, setSelectedServices]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [step, setStep] = useState(fitPayment ? 4 : 1);
   const stepperStep = Math.min(step, 3);
   const [bookedAppointments, setBookedAppointments] = useState([]);
   const [releasedSchedules, setReleasedSchedules] = useState([]);
   const [dayAvailability, setDayAvailability] = useState({ special_hours: null, blocks: [] });
-  const [isRequestModalOpen, setIsRequestModalOpen] =
-    useState(false);
-  const [fitPreferences, setFitPreferences] = useState(null);
-  const [fitRequestCompleted, setFitRequestCompleted] = useState(false);
   const [bookingType, setBookingType] =
     useState("normal");
-  const [isSubmittingRequest, setIsSubmittingRequest] =
-    useState(false);
   const [errors, setErrors] = useState({});
-  const [phoneTouched, setPhoneTouched] = useState(false);
-  const [reservationPolicyAnswered, setReservationPolicyAnswered] =
-    useState(false);
-  const [profileComplete, setProfileComplete] = useState(false);
-  const [confirmingProfile, setConfirmingProfile] = useState(false);
-  const [editingProfile, setEditingProfile] = useState(false);
-  const [customerData, setCustomerData] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    notes: "",
-    imageAuthorization: "",
-    reservationPolicyAccepted: false,
-  });
+  const {
+    customerData,
+    phoneTouched,
+    reservationPolicyAnswered,
+    profileComplete,
+    confirmingProfile,
+    editingProfile,
+    actions: {
+      setCustomerData,
+      setPhoneTouched,
+      setReservationPolicyAnswered,
+      setProfileComplete,
+      setConfirmingProfile,
+      setEditingProfile,
+    },
+  } = useBookingCustomer();
+  const {
+    isRequestModalOpen,
+    fitPreferences,
+    fitRequestCompleted,
+    isSubmittingRequest,
+    actions: {
+      openRequestModal,
+      closeRequestModal,
+      setFitPreferences,
+      setFitRequestCompleted,
+      setIsSubmittingRequest,
+    },
+  } = useFitRequestFlow();
 
   useEffect(() => {
     if (!user || user.app_metadata?.role === "admin") return;
@@ -199,7 +192,7 @@ function Booking() {
       setProfileComplete(Boolean(profile?.is_complete));
       setCustomerData((current) => ({ ...current, name: profile?.full_name || "", phone: profile?.phone || "", email: user.email || profile?.email || "" }));
     }).catch(() => console.error("Não foi possível carregar o perfil da cliente."));
-  }, [user]);
+  }, [user, setCustomerData, setProfileComplete]);
 
   useEffect(() => {
     getReleasedSchedules()
@@ -270,18 +263,9 @@ function Booking() {
     customerData.reservationPolicyAccepted !== true;
 
   const handleAddService = (serviceToAdd) => {
-    const alreadySelected = selectedServices.some(
-      (selectedService) => selectedService.id === serviceToAdd.id
-    );
-
-    if (alreadySelected) {
+    if (!addService(serviceToAdd)) {
       return;
     }
-
-    setSelectedServices((currentServices) => [
-      ...currentServices,
-      serviceToAdd,
-    ]);
     setSelectedTime("");
   };
 
@@ -290,11 +274,7 @@ function Booking() {
       return;
     }
 
-    setSelectedServices((currentServices) =>
-      currentServices.filter(
-        (selectedService) => selectedService.id !== serviceId
-      )
-    );
+    removeService(serviceId);
     setSelectedTime("");
   };
 
@@ -749,7 +729,7 @@ function Booking() {
               price={formatCurrency(totalPrice)}
               deposit={formatCurrency(totalDeposit)}
               onRemove={handleRemoveService}
-              onOpenAdditional={() => setShowServiceSelector(true)}
+              onOpenAdditional={openServiceSelector}
             />
 
             <BookingAdditionalServices
@@ -758,9 +738,9 @@ function Booking() {
               formatDuration={formatDuration}
               onSelect={(availableService) => {
                 handleAddService(availableService);
-                setShowServiceSelector(false);
+                closeServiceSelector();
               }}
-              onClose={() => setShowServiceSelector(false)}
+              onClose={closeServiceSelector}
             />
 
             <section className="booking__calendar">
@@ -794,10 +774,10 @@ function Booking() {
                   }
 
                   if (slot.status === "approval") {
-                    setIsRequestModalOpen(true);
+                    openRequestModal();
                   }
                 }}
-                onRequestFit={() => setIsRequestModalOpen(true)}
+                onRequestFit={openRequestModal}
               />
             )}
           </>
@@ -880,13 +860,11 @@ function Booking() {
           duration={totalDuration}
           selectedDate={selectedDate}
           isSubmitting={isSubmittingRequest}
-          onClose={() => {
-            setIsRequestModalOpen(false);
-          }}
+          onClose={closeRequestModal}
           onConfirm={(preferences) => {
             setFitPreferences(preferences);
             setBookingType("request");
-            setIsRequestModalOpen(false);
+            closeRequestModal();
             setStep(2);
           }}
         />
