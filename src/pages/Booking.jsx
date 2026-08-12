@@ -8,6 +8,14 @@ import "react-datepicker/dist/react-datepicker.css";
 import FitRequestModal from "../components/booking/FitRequestModal";
 import PaymentStep from "../components/booking/PaymentStep";
 import ApprovalPendingStep from "../components/booking/ApprovalPendingStep";
+import BookingAdditionalServices from "../components/booking/BookingAdditionalServices";
+import BookingCustomerStep from "../components/booking/BookingCustomerStep";
+import BookingFitSuccess from "../components/booking/BookingFitSuccess";
+import BookingReviewStep from "../components/booking/BookingReviewStep";
+import BookingServiceSelection from "../components/booking/BookingServiceSelection";
+import BookingServiceSummary from "../components/booking/BookingServiceSummary";
+import BookingStepper from "../components/booking/BookingStepper";
+import BookingTimeSlots from "../components/booking/BookingTimeSlots";
 import useServiceCatalog from "../hooks/useServiceCatalog";
 import usePromotions from "../hooks/usePromotions";
 import Layout from "../layouts/Layout";
@@ -243,6 +251,23 @@ function Booking() {
   );
 
   const remainingAmount = totalPrice - totalDeposit;
+  const selectedServiceViews = selectedServices.map((selectedService) => ({
+    ...selectedService,
+    durationLabel: formatDuration(selectedService.durationMinutes),
+  }));
+  const additionalServiceViews = services.filter(
+    (availableService) =>
+      availableService.active &&
+      !selectedServices.some(
+        (selectedService) => selectedService.id === availableService.id
+      )
+  );
+  const customerContinueDisabled =
+    !customerData.name.trim() ||
+    !isValidWhatsApp(customerData.phone) ||
+    !isValidEmail(user?.email || customerData.email) ||
+    confirmingProfile ||
+    customerData.reservationPolicyAccepted !== true;
 
   const handleAddService = (serviceToAdd) => {
     const alreadySelected = selectedServices.some(
@@ -674,12 +699,7 @@ function Booking() {
     return (
       <Layout>
         <main className="booking">
-          <section className="booking__success">
-            <h1>Solicitação enviada com sucesso!</h1>
-            <p>Seu pedido de encaixe está aguardando análise da profissional.</p>
-            <p>Você poderá acompanhar a resposta no Meu Espaço.</p>
-            <button className="booking__continue" onClick={() => navigate("/minha-conta")}>Acessar Meu Espaço</button>
-          </section>
+          <BookingFitSuccess onNavigate={() => navigate("/minha-conta")} />
         </main>
       </Layout>
     );
@@ -714,186 +734,34 @@ function Booking() {
         )}
 
         {step !== 5 && (
-        <div className="booking__service">
-          <div className="booking__content">
-            <span>{service.category}</span>
-
-            <h2>{service.title}</h2>
-
-            <p>{service.description}</p>
-
-            <div className="booking__info">
-              <p>⏱ {service.duration}</p>
-
-              <p>💰 {service.price}</p>
-
-              <p>📌 Reserva: {service.reservationFee}</p>
-            </div>
-          </div>
-        </div>
+          <BookingServiceSummary service={service} />
         )}
 
         {step !== 5 && (
-        <div className="booking__steps">
-          <div
-            className={`booking__step ${
-              stepperStep >= 1 ? "booking__step--active" : ""
-            }`}
-          >
-            <div className="booking__circle">
-              {stepperStep > 1 ? "✓" : "1"}
-            </div>
-
-            <span>Escolha</span>
-          </div>
-
-          <div className="booking__line" />
-
-          <div
-            className={`booking__step ${
-              stepperStep >= 2 ? "booking__step--active" : ""
-            }`}
-          >
-            <div className="booking__circle">
-              {stepperStep > 2 ? "✓" : "2"}
-            </div>
-
-            <span>Dados</span>
-          </div>
-
-          <div className="booking__line" />
-
-          <div
-            className={`booking__step ${
-              stepperStep >= 3 ? "booking__step--active" : ""
-            }`}
-          >
-            <div className="booking__circle">
-              3
-            </div>
-
-            <span>Confirmação</span>
-          </div>
-        </div>
+          <BookingStepper step={stepperStep} />
         )}
 
         {step === 1 && (
           <>
-            <section className="selected-services">
-              <div className="selected-services__header">
-                <div>
-                  <span>Seu atendimento</span>
-                  <strong>
-                    {selectedServices.length}{" "}
-                    {selectedServices.length === 1
-                      ? "serviço selecionado"
-                      : "serviços selecionados"}
-                  </strong>
-                </div>
+            <BookingServiceSelection
+              services={selectedServiceViews}
+              duration={formatDuration(totalDuration)}
+              price={formatCurrency(totalPrice)}
+              deposit={formatCurrency(totalDeposit)}
+              onRemove={handleRemoveService}
+              onOpenAdditional={() => setShowServiceSelector(true)}
+            />
 
-                <button
-                  type="button"
-                  className="add-service-button"
-                  onClick={() => setShowServiceSelector(true)}
-                >
-                  + Adicionar outro serviço
-                </button>
-              </div>
-
-              <div className="selected-services__list">
-                {selectedServices.map((selectedService) => (
-                  <div
-                    key={selectedService.id}
-                    className="selected-service-item"
-                  >
-                    <div>
-                      <strong>{selectedService.title}</strong>
-
-                      <span>
-                        {formatDuration(selectedService.durationMinutes)}
-                        {" • "}
-                        {selectedService.price}
-                      </span>
-                    </div>
-
-                    {selectedServices.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleRemoveService(selectedService.id)
-                        }
-                      >
-                        Remover
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="selected-services__totals">
-                <span>
-                  Duração total:
-                  <strong>{formatDuration(totalDuration)}</strong>
-                </span>
-
-                <span>
-                  Valor total:
-                  <strong>{formatCurrency(totalPrice)}</strong>
-                </span>
-
-                <span>
-                  Reserva:
-                  <strong>{formatCurrency(totalDeposit)}</strong>
-                </span>
-              </div>
-            </section>
-
-            {showServiceSelector && (
-              <section className="additional-services">
-                <div className="additional-services__header">
-                  <h3>Adicionar outro serviço</h3>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowServiceSelector(false)}
-                  >
-                    Fechar
-                  </button>
-                </div>
-
-                <div className="additional-services__grid">
-                  {services
-                    .filter(
-                      (availableService) =>
-                        availableService.active &&
-                        !selectedServices.some(
-                          (selectedService) =>
-                            selectedService.id === availableService.id
-                        )
-                    )
-                    .map((availableService) => (
-                      <button
-                        key={availableService.id}
-                        type="button"
-                        className="additional-service-card"
-                        onClick={() => {
-                          handleAddService(availableService);
-                          setShowServiceSelector(false);
-                        }}
-                      >
-                        <strong>{availableService.title}</strong>
-                        <span>
-                          {formatDuration(availableService.durationMinutes)}
-                        </span>
-                        <span>{availableService.price}</span>
-                        <small>
-                          Reserva: {availableService.reservationFee}
-                        </small>
-                      </button>
-                    ))}
-                </div>
-              </section>
-            )}
+            <BookingAdditionalServices
+              open={showServiceSelector}
+              services={additionalServiceViews}
+              formatDuration={formatDuration}
+              onSelect={(availableService) => {
+                handleAddService(availableService);
+                setShowServiceSelector(false);
+              }}
+              onClose={() => setShowServiceSelector(false)}
+            />
 
             <section className="booking__calendar">
               <h2>📅 Escolha uma data</h2>
@@ -913,437 +781,73 @@ function Booking() {
             </section>
 
             {selectedDate && (
-              <section className="booking__times">
-                <h2>⏰ Horários disponíveis</h2>
+              <BookingTimeSlots
+                slots={visibleTimes}
+                selectedTime={selectedTime}
+                disabled={!selectedTime}
+                onClick={() => setStep(2)}
+                onSelect={(slot) => {
+                  if (slot.status === "available") {
+                    setSelectedTime(slot.time);
+                    setBookingType("normal");
+                    return;
+                  }
 
-                {visibleTimes.length > 0 ? (
-                  <div className="booking__times-grid">
-                    {visibleTimes.map((slot) => (
-                      <button
-                        key={slot.time}
-                        type="button"
-                        className={`time-slot booking__time time-slot--${slot.status} ${
-                          selectedTime === slot.time
-                            ? "selected booking__time--selected"
-                            : ""
-                        }`}
-                        disabled={slot.status === "unavailable"}
-                        onClick={() => {
-                          if (slot.status === "available") {
-                            setSelectedTime(slot.time);
-                            setBookingType("normal");
-                            return;
-                          }
-
-                          if (slot.status === "approval") {
-                            setIsRequestModalOpen(true);
-                          }
-                        }}
-                      >
-                        <span>{slot.time}</span>
-
-                        {slot.status === "unavailable" && (
-                          <small>Indisponível</small>
-                        )}
-
-                        {slot.status === "approval" && (
-                          <small>Solicitar encaixe</small>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div>
-                    <p className="booking__no-times">
-                      Não há horários disponíveis para esta data.
-                      Escolha outro dia.
-                    </p>
-                    <button type="button" className="booking__fit-request" onClick={() => setIsRequestModalOpen(true)}>Solicitar encaixe</button>
-                  </div>
-                )}
-
-                {visibleTimes.length > 0 && (
-                  <button type="button" className="booking__fit-link" onClick={() => setIsRequestModalOpen(true)}>Não encontrei um horário</button>
-                )}
-
-                <button
-                  className="booking__continue"
-                  disabled={!selectedTime}
-                  onClick={() => setStep(2)}
-                >
-                  Continuar
-                </button>
-              </section>
+                  if (slot.status === "approval") {
+                    setIsRequestModalOpen(true);
+                  }
+                }}
+                onRequestFit={() => setIsRequestModalOpen(true)}
+              />
             )}
           </>
         )}
 
         {step === 2 && (
-          <section className="booking__customer">
-            <h2>Seus dados</h2>
-
-            {user && profileComplete && !editingProfile && (
-              <article className="customer-profile-confirmation">
-                <h3>Confirme seus dados</h3>
-                <p><strong>Nome:</strong> {customerData.name}</p>
-                <p><strong>Telefone:</strong> {customerData.phone}</p>
-                <p><strong>E-mail:</strong> {user.email}</p>
-                <div><button type="button" onClick={() => setEditingProfile(true)}>Alterar dados</button><button type="button" className="primary" onClick={() => setEditingProfile(true)}>Confirmar e continuar</button></div>
-                <small>As autorizações e a política atual ainda serão confirmadas para este agendamento.</small>
-              </article>
-            )}
-
-            <label>
-              Nome completo
-              <input
-                type="text"
-                name="name"
-                value={customerData.name}
-                onChange={handleCustomerChange}
-                placeholder="Digite seu nome completo"
-                required
-              />
-              {errors.name && <p className="form-error">{errors.name}</p>}
-            </label>
-
-            <label>
-              WhatsApp
-              <input
-                type="tel"
-                name="phone"
-                value={customerData.phone}
-                onChange={handleCustomerChange}
-                onBlur={handleContactBlur}
-                placeholder="(11) 99999-9999"
-                inputMode="numeric"
-                autoComplete="tel"
-                maxLength={15}
-                required
-              />
-
-              {errors.phone && (
-                <p className="form-error">{errors.phone}</p>
-              )}
-            </label>
-
-            <label>
-              E-mail
-              <input
-                type="email"
-                name="email"
-                value={customerData.email}
-                onChange={handleCustomerChange}
-                onBlur={handleContactBlur}
-                placeholder="seuemail@exemplo.com"
-                autoComplete="email"
-                readOnly={Boolean(user)}
-                required
-              />
-
-              {errors.email && (
-                <p className="form-error">{errors.email}</p>
-              )}
-            </label>
-            {user && <small>O e-mail é o mesmo da sua conta autenticada.</small>}
-            {errors.profile && <p className="form-error">{errors.profile}</p>}
-
-            <label>
-              Observações — opcional
-              <textarea
-                name="notes"
-                value={customerData.notes}
-                onChange={handleCustomerChange}
-                placeholder="Existe alguma informação importante sobre o atendimento?"
-                rows={5}
-              />
-            </label>
-
-            <div className="image-authorization">
-              <div className="image-authorization__heading">
-                <h3>Autorização de uso de imagem</h3>
-
-                <span>Obrigatório</span>
-              </div>
-
-              <p className="image-authorization__description">
-                {publicSettings.policies.image_authorization?.content}
-              </p>
-
-              <label
-                className={`image-authorization__option ${
-                  customerData.imageAuthorization === "yes"
-                    ? "selected"
-                    : ""
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="imageAuthorization"
-                  value="yes"
-                  checked={customerData.imageAuthorization === "yes"}
-                  onChange={handleCustomerChange}
-                />
-
-                <div>
-                  <strong>Sim, autorizo</strong>
-
-                  <span>
-                    Autorizo o uso de fotos ou vídeos do resultado do
-                    procedimento para divulgação.
-                  </span>
-                </div>
-              </label>
-
-              <label
-                className={`image-authorization__option ${
-                  customerData.imageAuthorization === "no"
-                    ? "selected"
-                    : ""
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="imageAuthorization"
-                  value="no"
-                  checked={customerData.imageAuthorization === "no"}
-                  onChange={handleCustomerChange}
-                />
-
-                <div>
-                  <strong>Não autorizo</strong>
-
-                  <span>
-                    Não autorizo a divulgação de fotos ou vídeos do meu
-                    procedimento.
-                  </span>
-                </div>
-              </label>
-
-              {errors.imageAuthorization && (
-                <p className="form-error">
-                  {errors.imageAuthorization}
-                </p>
-              )}
-            </div>
-
-            <div className="image-authorization">
-              <div className="image-authorization__heading">
-                <h3>Confirmação da política de reserva</h3>
-
-                <span>Obrigatório</span>
-              </div>
-
-              <p className="image-authorization__description">
-                {publicSettings.policies.reservation?.content}
-              </p>
-
-              <label
-                className={`image-authorization__option ${
-                  reservationPolicyAnswered &&
-                  customerData.reservationPolicyAccepted
-                    ? "selected"
-                    : ""
-                }`}
-              >
-                <input
-                  type="radio"
-                  name="reservationPolicyAccepted"
-                  checked={
-                    reservationPolicyAnswered &&
-                    customerData.reservationPolicyAccepted
-                  }
-                  onChange={() => handleReservationPolicyChange(true)}
-                />
-
-                <div>
-                  <strong>
-                    Sim, estou ciente e concordo com a política de reserva.
-                  </strong>
-                </div>
-              </label>
-
-              {errors.reservationPolicy && (
-                <p className="form-error">
-                  {errors.reservationPolicy}
-                </p>
-              )}
-            </div>
-
-            <div className="booking__actions">
-              <button
-                type="button"
-                className="booking__back-button"
-                onClick={() => setStep(1)}
-              >
-                Voltar
-              </button>
-
-              <button
-                type="button"
-                className="booking__continue"
-                disabled={
-                  !customerData.name.trim() ||
-                  !isValidWhatsApp(customerData.phone) ||
-                  !isValidEmail(user?.email || customerData.email) ||
-                  confirmingProfile ||
-                  customerData.reservationPolicyAccepted !== true
-                }
-                onClick={handleCustomerContinue}
-              >
-                {confirmingProfile ? "Salvando dados..." : "Revisar agendamento"}
-              </button>
-            </div>
-          </section>
+          <BookingCustomerStep
+            customerData={customerData}
+            errors={errors}
+            userEmail={user?.email}
+            readOnly={Boolean(user)}
+            showProfileConfirmation={Boolean(user && profileComplete && !editingProfile)}
+            confirmingProfile={confirmingProfile}
+            continueDisabled={customerContinueDisabled}
+            reservationPolicyAnswered={reservationPolicyAnswered}
+            reservationPolicySelected={
+              reservationPolicyAnswered &&
+              customerData.reservationPolicyAccepted
+            }
+            imagePolicy={publicSettings.policies.image_authorization?.content}
+            reservationPolicy={publicSettings.policies.reservation?.content}
+            onCustomerChange={handleCustomerChange}
+            onContactBlur={handleContactBlur}
+            onReservationChange={() => handleReservationPolicyChange(true)}
+            onEditProfile={() => setEditingProfile(true)}
+            onConfirmProfile={() => setEditingProfile(true)}
+            onClick={() => setStep(1)}
+            buttonText="Voltar"
+            onContinue={handleCustomerContinue}
+          />
         )}
 
         {step === 3 && (
-          <section className="booking-review">
-            <h2 className="booking-section-title">
-              📋 Revise seu agendamento
-            </h2>
-
-            <div className="review-card">
-              <h3>Serviços selecionados</h3>
-
-              <div className="review-services-list">
-                {selectedServices.map((selectedService) => (
-                  <div key={selectedService.id}>
-                    <strong>{selectedService.title}</strong>
-                    <span>
-                      {formatDuration(selectedService.durationMinutes)}
-                      {" • "}
-                      {selectedService.price}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="review-top-grid">
-              <div className="review-card">
-                <h3>Data e horário</h3>
-
-                <div className="review-details">
-                  <div>
-                    <span>Data</span>
-                    <p>{selectedDate?.toLocaleDateString("pt-BR")}</p>
-                  </div>
-
-                  <div>
-                    <span>Horário</span>
-                    <p>{selectedTime}</p>
-                  </div>
-                </div>
-
-                <div className="review-item">
-                  <span>📍 Localização</span>
-                  <strong>São João Clímaco • São Paulo/SP</strong>
-                </div>
-              </div>
-
-              <div className="review-card">
-                <h3>Seus dados</h3>
-
-                <div className="review-customer">
-                  <p>{customerData.name}</p>
-                  <p>{customerData.phone}</p>
-                  <p>{customerData.email}</p>
-                </div>
-
-                {customerData.notes?.trim() && (
-                  <div className="review-observation">
-                    <span>Observações</span>
-                    <p>{customerData.notes}</p>
-                  </div>
-                )}
-
-                <div className="review-item">
-                  <span>Uso de imagem</span>
-                  <strong>
-                    {customerData.imageAuthorization === "yes"
-                      ? "Autorizado"
-                      : "Não autorizado"}
-                  </strong>
-                </div>
-              </div>
-            </div>
-
-            <div className="review-card review-payment">
-              <h3>💰 Resumo do pagamento</h3>
-
-              <div className="payment-row">
-                <span>Valor do procedimento</span>
-                <strong>{formatCurrency(totalPrice)}</strong>
-              </div>
-
-              <div className="payment-row">
-                <span>Reserva paga hoje</span>
-                <strong>{formatCurrency(totalDeposit)}</strong>
-              </div>
-
-              <div className="payment-divider" />
-
-              <div className="payment-row payment-total">
-                <span>Restante no atendimento</span>
-                <strong>{formatCurrency(remainingAmount)}</strong>
-              </div>
-
-              <p className="payment-note">
-                ✓ A reserva será descontada do valor total.
-              </p>
-            </div>
-
-            <div className="review-info">
-              <h3>ℹ️ Informações importantes</h3>
-
-              <p>
-                A taxa de reserva será abatida do valor total do procedimento.
-              </p>
-
-              <p>
-                O valor restante será pago presencialmente no dia do atendimento.
-              </p>
-
-              <p>
-                Após a confirmação do pagamento, seu horário será reservado
-                automaticamente.
-              </p>
-
-              <p>
-                Em caso de cancelamento, será aplicada a política de cancelamento
-                do estúdio.
-              </p>
-
-              <div className="review-location-note">
-                <span>🔒</span>
-
-                <p>
-                  O endereço completo será enviado por e-mail após a aprovação do
-                  pagamento da reserva.
-                </p>
-              </div>
-            </div>
-
-            <div className="review-actions">
-              {errors.fitRequest && <p className="booking__form-error">{errors.fitRequest}</p>}
-              <button
-                type="button"
-                className="review-back-button"
-                onClick={() => setStep(2)}
-              >
-                Voltar
-              </button>
-
-              <button
-                type="button"
-                className="review-payment-button"
-                disabled={isSubmittingRequest}
-                onClick={() => bookingType === "request" ? handleBookingRequest() : setStep(4)}
-              >
-                {bookingType === "request" ? (isSubmittingRequest ? "Enviando solicitação..." : "Enviar solicitação de encaixe") : "Continuar para pagamento"}
-              </button>
-            </div>
-          </section>
+          <BookingReviewStep
+            services={selectedServiceViews}
+            date={selectedDate?.toLocaleDateString("pt-BR")}
+            time={selectedTime}
+            customerData={customerData}
+            totalPrice={formatCurrency(totalPrice)}
+            totalDeposit={formatCurrency(totalDeposit)}
+            remainingAmount={formatCurrency(remainingAmount)}
+            fitRequestError={errors.fitRequest}
+            bookingType={bookingType}
+            loading={isSubmittingRequest}
+            onClick={() => setStep(2)}
+            buttonText="Voltar"
+            onContinue={() =>
+              bookingType === "request" ? handleBookingRequest() : setStep(4)
+            }
+          />
         )}
 
         {step === 4 && (
