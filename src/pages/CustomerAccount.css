@@ -77,7 +77,6 @@
 .customer-form-message { max-width:900px; margin:0 auto 20px; padding:13px 16px; border-radius:10px; background:#edf5ed; color:#3e6a45; }
 .customer-form-message.is-error { background:#faece9; color:#934a40; }
 @media(max-width:850px){.customer-appointments-grid{grid-template-columns:1fr 1fr}.customer-form{grid-template-columns:1fr}.customer-form label:first-child{grid-column:auto}}
-@media(max-width:600px){.customer-account-page{padding:35px 14px 70px}.customer-appointments-grid{grid-template-columns:1fr}.customer-settings-card{padding:22px 18px}.customer-photo-crop{align-items:stretch;flex-direction:column}.customer-form--compact{grid-template-columns:1fr}.customer-form>button,.customer-preferences>button{width:100%}.customer-security div{flex-direction:column;gap:5px}.customer-security dd{text-align:left}}
+@media(max-width:600px){.customer-account-page{padding:35px 14px 70px}.customer-appointments-grid{grid-template-columns:1fr}.customer-settings-card{padding:22px 18px}.customer-photo-crop{align-items:stretch;flex-direction:column}.customer-form--compact{grid-template-columns:1fr}.customer-form>button,.customer-preferences>button,.customer-password-form>button,.customer-secondary-action{width:100%}.customer-security div{flex-direction:column;gap:5px}.customer-security dd{text-align:left}}
 *:focus-visible { outline:3px solid rgba(154,101,67,.35); outline-offset:3px; }
-@media(max-width:600px){.customer-password-form>button,.customer-secondary-action{width:100%}}
 @media(prefers-reduced-motion:reduce){.customer-drawer,.customer-drawer-backdrop{transition:none!important}}

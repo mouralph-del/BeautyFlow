@@ -12,5 +12,4 @@
 .admin-gallery-automatic-copy, .admin-gallery-custom-copy { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 4px; }
 .admin-gallery-automatic-copy small, .admin-gallery-custom-copy small { grid-column: 1 / -1; color: var(--admin-muted); }
 .admin-gallery-automatic-copy input, .admin-gallery-automatic-copy textarea { background: #f7f1ed; color: var(--admin-muted); }
-@media (max-width: 620px) { .admin-gallery-service-option { grid-template-columns: 1fr auto; } .admin-gallery-order { grid-column: 1 / -1; } }
-@media (max-width: 620px) { .admin-gallery-automatic-copy, .admin-gallery-custom-copy { grid-template-columns: 1fr; } .admin-gallery-automatic-copy small, .admin-gallery-custom-copy small { grid-column: auto; } }
+@media (max-width: 620px) { .admin-gallery-service-option { grid-template-columns: 1fr auto; } .admin-gallery-order { grid-column: 1 / -1; } .admin-gallery-automatic-copy, .admin-gallery-custom-copy { grid-template-columns: 1fr; } .admin-gallery-automatic-copy small, .admin-gallery-custom-copy small { grid-column: auto; } }

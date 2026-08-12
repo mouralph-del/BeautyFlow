@@ -11,7 +11,7 @@ Configuração operacional detalhada: [README_EMAIL_SETUP.md](../README_EMAIL_SE
 - `email_templates`: conteúdo editável, assinatura e variáveis obrigatórias.
 - O layout compartilhado usa CSS inline, fundo bege, cartão branco e CTA marrom; assunto, título, subtítulo, corpo, assinatura e botão vêm do template, com fallback somente quando o template solicitado não existe.
 - O alerta administrativo de pagamento não inclui chave Pix, anexo ou URL permanente do comprovante. Seu CTA abre a solicitação específica na Central Administrativa por URL assinada apenas sob demanda.
-- Não há executor confirmado para pós-atendimento; portanto esse disparo permanece pendente e não deve ser simulado como ativo.
+- O pós-atendimento é preparado pelo job `beautyflow-post-service-preparation`; sua operação remota depende da migration aplicada e do job ativo.
 - E-mails administrativos consultam `admin_notification_preferences`: somente contas administrativas ativas com e-mail habilitado são destinatárias. `THAIS_ADMIN_EMAIL` é usado apenas como fallback quando a consulta não retorna destinatária válida. Thaís e Laysla mantêm as mesmas permissões de painel; por padrão, somente Thaís é elegível para e-mails.
 
 | Automação | Executor | Frequência | Destinatário | Prevenção de duplicidade | Estado |
@@ -21,9 +21,10 @@ Configuração operacional detalhada: [README_EMAIL_SETUP.md](../README_EMAIL_SE
 | Agenda mensal | `prepare_hourly_automation_emails` | Dias 20, 25 e último dia | Administradora elegível | data/event key | Ativa |
 | Expiração de encaixe | `expire_fit_request_proposals` | Horária | Cliente e painel | status + event key | Ativa |
 | Campanhas | `prepare_promotion_emails` | Diária | Clientes com consentimento | promoção + cliente | Ativa |
-| Pós-atendimento | `prepare_post_service_emails` + outbox | Horária, após 2h | Cliente | `post-service:<id>` e `review_email_sent_at` | Criada, aguarda migration |
+| Pós-atendimento | `prepare_post_service_emails` + outbox | Horária, após 2h | Cliente | `post-service:<id>` e `review_email_sent_at` | Implementada; confirmar job remoto |
+| Expiração sem comprovante | `expire_unpaid_reservations` | Horária | Painel | status + `reservation-expired:<id>` | Implementada; usa `proof_deadline_minutes` |
 
-Falhas permanecem na outbox com até cinco tentativas e atraso progressivo. A preferência é consultada imediatamente antes do envio.
+Falhas permanecem na outbox com até cinco tentativas e atraso progressivo. A preferência é consultada imediatamente antes do envio. A fila é deliberadamente global: qualquer um dos três executores pode drenar os eventos pendentes, usando o mesmo processador e as mesmas garantias. O nome do worker identifica quem reivindicou o lote, não limita o tipo de e-mail.
 - `notification_preferences`: liga/desliga e define prioridade por evento.
 - `automation_email_outbox`: fila, trava de worker, tentativas e próxima execução.
 - `email_delivery_logs`: status, erro e identificador do provedor.
@@ -54,11 +55,11 @@ Jobs em processamento há mais de 15 minutos podem ser retomados. Falhas voltam 
 - Campanhas promocionais diárias por cliente elegível.
 - Resumo diário administrativo com saudação e versículo, evitando repetição pelo histórico.
 
-`pg_cron` chama funções SQL e, via `pg_net`, as Edge Functions `reminders`, `daily-summary` e `promotion-mailer`. Os nomes internos dos jobs mantêm “beautyflow”, corretamente, por serem infraestrutura.
+`pg_cron` chama funções SQL e, via `pg_net`, as Edge Functions `reminders`, `daily-summary` e `promotion-mailer`. As chamadas automáticas exigem o segredo dedicado `AUTOMATION_CRON_SECRET`, enviado pelo header `x-beautyflow-automation-secret`; possuir somente a chave publicável não autoriza executar workers. Os nomes internos dos jobs mantêm “beautyflow”, corretamente, por serem infraestrutura.
 
 ## Configuração sem valores
 
-Secrets das Edge Functions: `RESEND_API_KEY`, `PAYMENT_EMAIL_FROM`, `THAIS_ADMIN_EMAIL`, `SITE_URL`. Secrets do Vault: `beautyflow_project_url`, `beautyflow_publishable_key`. O Vault usa chave publicável/anon para o gateway; nunca `service_role`.
+Secrets das Edge Functions: `RESEND_API_KEY`, `PAYMENT_EMAIL_FROM`, `THAIS_ADMIN_EMAIL`, `SITE_URL`, `AUTOMATION_CRON_SECRET`. Secrets do Vault: `beautyflow_project_url`, `beautyflow_publishable_key`, `beautyflow_automation_cron_secret`. O Vault usa chave publicável/anon para o gateway; nunca `service_role`.
 
 O padrão visual pretendido nas migrations de identidade é fundo bege, conteúdo branco, botão marrom, português e assinatura **Thaís Santos Beauty Studio**. Mudanças de template devem preservar variáveis exigidas.
 

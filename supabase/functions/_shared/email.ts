@@ -5,7 +5,7 @@ export type AdminClient = SupabaseClient;
 
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-beautyflow-automation-secret",
 };
 
 export const jsonResponse = (body: unknown, status = 200) =>
@@ -28,6 +28,26 @@ export function getEmailEnvironment() {
     adminEmail: Deno.env.get("THAIS_ADMIN_EMAIL"),
     siteUrl: Deno.env.get("SITE_URL"),
   };
+}
+
+async function digest(value: string) {
+  return new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)));
+}
+
+async function secureEqual(left: string, right: string) {
+  const [leftDigest, rightDigest] = await Promise.all([digest(left), digest(right)]);
+  let difference = leftDigest.length ^ rightDigest.length;
+  for (let index = 0; index < leftDigest.length; index += 1) difference |= leftDigest[index] ^ rightDigest[index];
+  return difference === 0;
+}
+
+export async function requireAutomationRequest(request: Request) {
+  if (request.method !== "POST") throw new Error("Método não permitido para a automação.");
+  const configuredSecret = Deno.env.get("AUTOMATION_CRON_SECRET")?.trim();
+  const providedSecret = request.headers.get("x-beautyflow-automation-secret")?.trim();
+  if (!configuredSecret || !providedSecret || !(await secureEqual(configuredSecret, providedSecret))) {
+    throw new Error("Chamada automática não autorizada.");
+  }
 }
 
 export async function sendTemplateEmail({
@@ -83,7 +103,11 @@ export async function sendTemplateEmail({
   });
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: { Authorization: `Bearer ${environment.resendApiKey}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${environment.resendApiKey}`,
+      "Content-Type": "application/json",
+      "Idempotency-Key": eventKey.slice(0, 256),
+    },
     body: JSON.stringify({ from: environment.emailFrom, to: [recipient], subject, html, headers: { "X-Entity-Ref-ID": eventKey } }),
   });
   if (!response.ok) throw new Error(`Resend indisponível (${response.status}).`);

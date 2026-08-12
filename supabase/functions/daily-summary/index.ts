@@ -1,8 +1,9 @@
-import { corsHeaders, getAdminClient, getEmailEnvironment, jsonResponse, processOutbox } from "../_shared/email.ts";
+import { corsHeaders, getAdminClient, getEmailEnvironment, jsonResponse, processOutbox, requireAutomationRequest } from "../_shared/email.ts";
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
+    await requireAutomationRequest(request);
     const adminEmail = getEmailEnvironment().adminEmail;
     if (!adminEmail) throw new Error("THAIS_ADMIN_EMAIL não configurado.");
     const client = getAdminClient();
@@ -11,6 +12,7 @@ Deno.serve(async (request) => {
     return jsonResponse({ ok: true, results: await processOutbox(client, "daily-summary") });
   } catch (error) {
     console.error("[daily-summary]", error instanceof Error ? error.message : error);
-    return jsonResponse({ ok: false, error: error instanceof Error ? error.message : "Erro inesperado." }, 500);
+    const message = error instanceof Error ? error.message : "Erro inesperado.";
+    return jsonResponse({ ok: false, error: message }, message.includes("autorizada") || message.includes("Método") ? 401 : 500);
   }
 });

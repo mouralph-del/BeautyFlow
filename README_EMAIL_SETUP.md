@@ -10,6 +10,7 @@ O Beauty Studio envia e-mails pelas Supabase Edge Functions usando o Resend. Nen
 | `PAYMENT_EMAIL_FROM` | `Beauty Studio <onboarding@resend.dev>` enquanto o domínio não estiver validado | `Beauty Studio <agendamentos@seudominio.com.br>` |
 | `THAIS_ADMIN_EMAIL` | E-mail verificado permitido pela conta de teste | E-mail administrativo real do estúdio |
 | `SITE_URL` | `http://localhost:5173` | URL HTTPS publicada do Beauty Studio |
+| `AUTOMATION_CRON_SECRET` | Segredo aleatório exclusivo do ambiente | Segredo aleatório exclusivo do ambiente |
 
 O remetente `onboarding@resend.dev` é adequado somente para testes e segue as limitações da conta Resend. Em produção, use um domínio próprio verificado.
 
@@ -31,6 +32,7 @@ npx supabase secrets set RESEND_API_KEY="<CHAVE_RESEND>"
 npx supabase secrets set PAYMENT_EMAIL_FROM="Beauty Studio <agendamentos@seudominio.com.br>"
 npx supabase secrets set THAIS_ADMIN_EMAIL="<EMAIL_ADMINISTRATIVO>"
 npx supabase secrets set SITE_URL="https://<DOMINIO_DO_SITE>"
+npx supabase secrets set AUTOMATION_CRON_SECRET="<SEGREDO_ALEATORIO_FORTE>"
 ```
 
 Para desenvolvimento, os dois últimos valores podem ser o e-mail verificado de teste e `http://localhost:5173`. Secrets das Edge Functions continuam no servidor; não os coloque em variáveis `VITE_`.
@@ -67,6 +69,12 @@ select vault.create_secret(
   'beautyflow_publishable_key',
   'Chave publicável usada pelo gateway das Edge Functions'
 );
+
+select vault.create_secret(
+  '<MESMO_VALOR_DE_AUTOMATION_CRON_SECRET>',
+  'beautyflow_automation_cron_secret',
+  'Segredo exclusivo que autentica as chamadas do pg_cron'
+);
 ```
 
 Se os secrets já existirem, atualize-os sem criar duplicatas:
@@ -85,9 +93,17 @@ select vault.update_secret(
 )
 from vault.decrypted_secrets
 where name = 'beautyflow_publishable_key';
+
+select vault.update_secret(
+  id,
+  new_secret := '<MESMO_VALOR_DE_AUTOMATION_CRON_SECRET>'
+)
+from vault.decrypted_secrets
+where name = 'beautyflow_automation_cron_secret';
 ```
 
 A chave usada no Vault é a **publishable/anon**, nunca a `service_role`. A `service_role` é disponibilizada automaticamente pelo Supabase apenas dentro das Edge Functions.
+O valor `beautyflow_automation_cron_secret` deve ser idêntico ao secret `AUTOMATION_CRON_SECRET` das Edge Functions. Ele nunca deve usar prefixo `VITE_`, ser gravado no repositório ou compartilhado com o navegador.
 
 ## Templates e preferências
 
@@ -95,7 +111,7 @@ Todos os envios consultam `notification_preferences` antes de chamar o Resend e 
 
 O HTML é centralizado em `supabase/functions/_shared/email-template.js`: fundo bege, cartão branco, bordas suaves, título e botão marrons, CSS inline e assinatura oficial. Templates podem definir `subtitle`, `button_text` e `button_url`; o link administrativo de pagamentos usa `/admin/solicitacoes?tab=pagamentos`.
 
-Para validar sem envio real, execute `npm run test:unit`. O teste renderiza as variantes localmente e não chama Resend nem Supabase. Antes de habilitar um envio real, confirme que o evento está na outbox, que a preferência está ativa, que o template existe e que a chave idempotente é única.
+Para validar sem envio real, execute `npm run test:unit`. O teste renderiza as variantes localmente e não chama Resend nem Supabase. Antes de habilitar um envio real, confirme que o evento está na outbox, que a preferência está ativa, que o template existe e que a chave idempotente é única. O worker envia essa chave também no header oficial `Idempotency-Key` do Resend.
 
 ## Diagnóstico
 

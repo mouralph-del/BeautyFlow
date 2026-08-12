@@ -22,46 +22,6 @@ export function overlapsLunch(time, duration) {
   return appointmentStart < lunchEnd && appointmentEnd > lunchStart;
 }
 
-export function getTimeStatus({
-  time,
-  duration,
-  closingTime,
-  bookedTimes = [],
-}) {
-  const [hours, minutes] = time.split(":").map(Number);
-  const [closingHours, closingMinutes] = closingTime
-    .split(":")
-    .map(Number);
-
-  const start = hours * 60 + minutes;
-  const end = start + duration;
-
-  const lunchStart = 12 * 60;
-  const lunchEnd = 13 * 60 + 30;
-
-  const closing =
-    closingHours * 60 + closingMinutes;
-
-  if (start >= lunchStart && start < lunchEnd) {
-    return "hidden";
-  }
-
-  if (start < lunchStart && end > lunchStart) {
-    return end - lunchStart <= 15 ? "approval" : "hidden";
-  }
-
-  if (end > closing) {
-    return end - closing <= 15 ? "approval" : "hidden";
-  }
-
-  // Aparece como indisponível porque já foi reservado
-  if (bookedTimes.includes(time)) {
-    return "unavailable";
-  }
-
-  return "available";
-}
-
 export function hasConflict(
   startTime,
   durationMinutes,
