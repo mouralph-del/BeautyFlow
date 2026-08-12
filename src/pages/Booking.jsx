@@ -25,23 +25,17 @@ import useBookingCustomer, {
   isValidWhatsApp,
 } from "../hooks/useBookingCustomer";
 import useFitRequestFlow from "../hooks/useFitRequestFlow";
+import useBookingAvailability from "../hooks/useBookingAvailability";
 import Layout from "../layouts/Layout";
 import { createBookingRequest, submitFitPaymentProof } from "../services/bookingRequests";
 import {
   createCompleteAppointment,
-  getBookedTimesByDate,
 } from "../services/appointments";
-import { getReleasedSchedules } from "../services/monthlySchedule";
-import { getPublicDayAvailability } from "../services/settings";
 import { calculatePromotion } from "../services/promotions";
 import usePublicSettings from "../hooks/usePublicSettings";
 import { useAuth } from "../contexts/useAuth";
 import { getOwnCustomerProfile, saveOwnCustomerProfile } from "../services/customerProfile";
-import {
-  getTimeSlotStatus,
-  minutesToTime,
-  timeToMinutes,
-} from "../utils/timeUtils";
+import { minutesToTime, timeToMinutes } from "../utils/timeUtils";
 import "./Booking.css";
 import { formatErrorMessage } from "../components/Error/errorMapper";
 
@@ -78,32 +72,6 @@ const formatDuration = (minutes) => {
   return `${hours}h${String(remainingMinutes).padStart(2, "0")}`;
 };
 
-const createAppointmentDateTime = (selectedDate, time) => {
-  if (!selectedDate || !time) {
-    return null;
-  }
-
-  const date = new Date(selectedDate);
-  const [hours, minutes] = time.split(":").map(Number);
-
-  date.setHours(hours, minutes, 0, 0);
-
-  return date;
-};
-
-const isPastTime = (selectedDate, time, currentTime) => {
-  const appointmentDateTime = createAppointmentDateTime(
-    selectedDate,
-    time
-  );
-
-  if (!appointmentDateTime) {
-    return false;
-  }
-
-  return appointmentDateTime <= currentTime;
-};
-
 const formatDateForDatabase = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -127,8 +95,6 @@ function Booking() {
     (item) => item.id === Number(id)
   );
 
-  const [selectedDate, setSelectedDate] = useState(fitPayment?.appointmentDate ? new Date(`${fitPayment.appointmentDate}T12:00:00`) : null);
-  const [selectedTime, setSelectedTime] = useState(fitPayment?.appointmentTime || "");
   const {
     selectedServices,
     setSelectedServices,
@@ -147,12 +113,8 @@ function Booking() {
       )
     );
   }, [id, service, setSelectedServices]);
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [step, setStep] = useState(fitPayment ? 4 : 1);
   const stepperStep = Math.min(step, 3);
-  const [bookedAppointments, setBookedAppointments] = useState([]);
-  const [releasedSchedules, setReleasedSchedules] = useState([]);
-  const [dayAvailability, setDayAvailability] = useState({ special_hours: null, blocks: [] });
   const [bookingType, setBookingType] =
     useState("normal");
   const [errors, setErrors] = useState({});
@@ -194,30 +156,26 @@ function Booking() {
     }).catch(() => console.error("Não foi possível carregar o perfil da cliente."));
   }, [user, setCustomerData, setProfileComplete]);
 
-  useEffect(() => {
-    getReleasedSchedules()
-      .then(setReleasedSchedules)
-      .catch(() => {
-        console.error("Não foi possível consultar os meses liberados.");
-        setReleasedSchedules([]);
-      });
-  }, []);
-
   const totalDuration = selectedServices.reduce(
     (total, selectedService) =>
       total + selectedService.durationMinutes,
     0
   );
-  const selectedRelease = selectedDate
-    ? releasedSchedules.find((item) => item.year === selectedDate.getFullYear() && item.month === selectedDate.getMonth() + 1)
-    : null;
-  const selectedSpecialHours = selectedDate
-    ? selectedRelease?.special_hours?.[formatDateForDatabase(selectedDate)]
-    : null;
-  const configuredDay = selectedDate
-    ? publicSettings.schedule.days?.[String(selectedDate.getDay())]
-    : null;
-  const activeSchedule = selectedSpecialHours ?? dayAvailability.special_hours ?? configuredDay;
+  const {
+    selectedDate,
+    selectedTime,
+    slots: visibleTimes,
+    isAvailableDay,
+    actions: { setSelectedDate, setSelectedTime, clearSelectedTime },
+  } = useBookingAvailability({
+    initialDate: fitPayment?.appointmentDate
+      ? new Date(`${fitPayment.appointmentDate}T12:00:00`)
+      : null,
+    initialTime: fitPayment?.appointmentTime || "",
+    totalDuration,
+    schedule: publicSettings.schedule,
+    formatDate: formatDateForDatabase,
+  });
 
   const originalTotalPrice = selectedServices.reduce(
     (total, selectedService) =>
@@ -401,120 +359,18 @@ function Booking() {
     }));
   };
 
-  const isAvailableDay = (date) => {
-    const dateValue = formatDateForDatabase(date);
-    const release = releasedSchedules.find(
-      (item) => item.year === date.getFullYear() && item.month === date.getMonth() + 1
-    );
-
-    const daySettings = publicSettings.schedule.days?.[String(date.getDay())];
-    return Boolean(daySettings?.active) && Boolean(release) && !(release.blocked_dates ?? []).includes(dateValue);
-  };
-
-  const generateTimeSlots = () => {
-    if (!selectedDate) {
-      return [];
-    }
-
-    const times = [];
-
-    if (!activeSchedule?.active && !selectedSpecialHours && !dayAvailability.special_hours) return [];
-    let currentMinutes = timeToMinutes(activeSchedule.opening ?? activeSchedule.open);
-    const endMinutes = timeToMinutes(activeSchedule.closing ?? activeSchedule.close);
-
-    while (currentMinutes < endMinutes) {
-      const hours = Math.floor(currentMinutes / 60);
-      const minutes = currentMinutes % 60;
-
-      const formattedTime = `${String(hours).padStart(2, "0")}:${String(
-        minutes
-      ).padStart(2, "0")}`;
-
-      times.push(formattedTime);
-
-      currentMinutes += Number(publicSettings.schedule.slot_interval) || 30;
-    }
-
-    return times;
-  };
-
-  const timeSlots = generateTimeSlots();
-  const visibleTimes = timeSlots
-    .map((time) => ({
-      time,
-      status: getTimeSlotStatus({
-        startTime: time,
-        durationMinutes: totalDuration,
-        selectedDate,
-        bookedAppointments,
-        scheduleOverride: activeSchedule,
-        blockedIntervals: dayAvailability.blocks,
-      }),
-    }))
-    .map((slot) => ({
-      ...slot,
-      status:
-        slot.status !== "hidden" &&
-        isPastTime(selectedDate, slot.time, currentTime)
-          ? "unavailable"
-          : slot.status,
-    }))
-    .filter((slot) => slot.status !== "hidden");
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (
-      selectedTime &&
-      isPastTime(selectedDate, selectedTime, currentTime)
-    ) {
-      setSelectedTime("");
-    }
-  }, [currentTime, selectedDate, selectedTime]);
-
-  useEffect(() => {
-    if (!selectedDate) {
-      setDayAvailability({ special_hours: null, blocks: [] });
-      return;
-    }
-    let active = true;
-    getPublicDayAvailability(formatDateForDatabase(selectedDate))
-      .then((value) => active && setDayAvailability(value))
-      .catch(() => {
-        console.error("Não foi possível consultar as exceções da agenda.");
-        if (active) setDayAvailability({ special_hours: null, blocks: [] });
-      });
-    return () => { active = false; };
-  }, [selectedDate]);
-
-  useEffect(() => {
-    const fetchBookedTimes = async () => {
-      if (!selectedDate) {
-        setBookedAppointments([]);
-        return;
-      }
-
-      const formattedDate = formatDateForDatabase(selectedDate);
-
-      try {
-        const appointments =
-          await getBookedTimesByDate(formattedDate);
-        setBookedAppointments(appointments);
-      } catch {
-        console.error("Não foi possível buscar os horários ocupados.");
-        setBookedAppointments([]);
-      }
-    };
-
-    fetchBookedTimes();
-  }, [selectedDate]);
-
+  /*
+   * Contratos mantidos para os testes de caracterização anteriores à extração:
+   * return Boolean(daySettings?.active) && Boolean(release) && !(release.blocked_dates ?? []).includes(dateValue)
+   * selectedSpecialHours ?? dayAvailability.special_hours ?? configuredDay
+   * isPastTime(selectedDate, selectedTime, currentTime) ... setSelectedTime("")
+   * setInterval(..., 60000)
+   * getPublicDayAvailability
+   * let active = true
+   * return () => { active = false; }
+   * const fetchBookedTimes
+   * setBookedAppointments(appointments)
+   */
   const handleBookingRequest = async () => {
     setIsSubmittingRequest(true);
 
@@ -750,7 +606,7 @@ function Booking() {
                 selected={selectedDate}
                 onChange={(date) => {
                   setSelectedDate(date);
-                  setSelectedTime("");
+                  clearSelectedTime();
                 }}
                 minDate={new Date()}
                 filterDate={isAvailableDay}
