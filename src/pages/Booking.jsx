@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { ptBR } from "date-fns/locale";
@@ -108,6 +108,7 @@ function Booking() {
   const [bookingType, setBookingType] =
     useState("normal");
   const [errors, setErrors] = useState({});
+  const fitRequestSubmissionRef = useRef(false);
   const {
     customerData,
     phoneTouched,
@@ -360,6 +361,8 @@ function Booking() {
    * return () => { active = false; }
    */
   const handleBookingRequest = async () => {
+    if (fitRequestSubmissionRef.current) return;
+    fitRequestSubmissionRef.current = true;
     setIsSubmittingRequest(true);
 
     const requestData = {
@@ -400,6 +403,7 @@ function Booking() {
 
     } catch (error) {
 
+      fitRequestSubmissionRef.current = false;
       console.error("Não foi possível enviar a solicitação de encaixe.");
 
       setErrors((current) => ({

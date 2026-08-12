@@ -52,8 +52,89 @@ test("PaymentStep bloqueia clique duplicado enquanto envia", () => {
   assert.match(payment, /setIsSending\(true\)/);
 });
 
-test("BUG DE CARACTERIZAÇÃO: envio de encaixe não possui guarda síncrona contra clique duplicado", () => {
+const deferred = () => {
+  let resolve;
+  let reject;
+  const promise = new Promise((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+};
+
+const createFitRequestSubmission = (rpc) => {
+  let locked = false;
+  let loading = false;
+  let completed = false;
+  let calls = 0;
+
+  const submit = async () => {
+    if (locked) return;
+    locked = true;
+    loading = true;
+    calls += 1;
+    try {
+      await rpc();
+      completed = true;
+    } catch {
+      locked = false;
+    } finally {
+      loading = false;
+    }
+  };
+
+  return {
+    submit,
+    state: () => ({ locked, loading, completed, calls }),
+  };
+};
+
+test("envio de encaixe possui guarda síncrona contra clique duplicado", () => {
   const handler = booking.slice(booking.indexOf("const handleBookingRequest"), booking.indexOf("const handleFinalizeAppointment"));
+  assert.match(handler, /if \(fitRequestSubmissionRef\.current\) return/);
+  assert.match(handler, /fitRequestSubmissionRef\.current = true/);
   assert.match(handler, /setIsSubmittingRequest\(true\)/);
-  assert.doesNotMatch(handler, /if \(isSubmittingRequest\) return/);
+  assert.match(handler, /catch \(error\)[\s\S]*fitRequestSubmissionRef\.current = false/);
+});
+
+test("clique duplo síncrono chama a RPC apenas uma vez", async () => {
+  const request = deferred();
+  const flow = createFitRequestSubmission(() => request.promise);
+  const first = flow.submit();
+  const second = flow.submit();
+  assert.equal(flow.state().calls, 1);
+  request.resolve();
+  await Promise.all([first, second]);
+});
+
+test("clique durante requisição pendente é ignorado", async () => {
+  const request = deferred();
+  const flow = createFitRequestSubmission(() => request.promise);
+  const first = flow.submit();
+  await flow.submit();
+  assert.deepEqual(flow.state(), { locked: true, loading: true, completed: false, calls: 1 });
+  request.resolve();
+  await first;
+});
+
+test("falha libera a guarda e permite nova tentativa", async () => {
+  let attempt = 0;
+  const flow = createFitRequestSubmission(async () => {
+    attempt += 1;
+    if (attempt === 1) throw new Error("falha");
+  });
+  await flow.submit();
+  assert.deepEqual(flow.state(), { locked: false, loading: false, completed: false, calls: 1 });
+  await flow.submit();
+  assert.deepEqual(flow.state(), { locked: true, loading: false, completed: true, calls: 2 });
+});
+
+test("sucesso conclui o fluxo e impede nova solicitação", async () => {
+  const flow = createFitRequestSubmission(async () => {});
+  const submission = flow.submit();
+  assert.equal(flow.state().loading, true);
+  await submission;
+  assert.deepEqual(flow.state(), { locked: true, loading: false, completed: true, calls: 1 });
+  await flow.submit();
+  assert.equal(flow.state().calls, 1);
 });
