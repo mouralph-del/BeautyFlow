@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const booking = readFileSync("src/pages/Booking.jsx", "utf8");
+const selectionHook = readFileSync("src/hooks/useBookingSelection.js", "utf8");
 const services = [
   { id: 1, title: "Serviço A", durationMinutes: 60, price: "R$ 100,00", reservationFee: "R$ 20,00" },
   { id: 2, title: "Serviço B", durationMinutes: 45, price: "R$ 80,00", reservationFee: "R$ 15,00" },
@@ -18,6 +19,40 @@ const totals = (selected) => ({
   price: selected.reduce((sum, item) => sum + currency(item.price), 0),
   deposit: selected.reduce((sum, item) => sum + currency(item.reservationFee), 0),
 });
+const createSelectionModel = ({ routeId, preselected }) => {
+  let selected = [];
+  let initialized = false;
+  let manuallyEdited = false;
+
+  const sync = (catalog) => {
+    if (!initialized && !manuallyEdited) {
+      const initial = initialize({ catalog, routeId, preselected });
+      if (initial.length) {
+        selected = initial;
+        initialized = true;
+      }
+      return;
+    }
+    selected = selected.map(
+      (item) => catalog.find((catalogItem) => String(catalogItem.id) === String(item.id)) ?? item
+    );
+  };
+
+  return {
+    sync,
+    add: (item) => {
+      initialized = true;
+      manuallyEdited = true;
+      if (!selected.some((current) => current.id === item.id)) selected = [...selected, item];
+    },
+    remove: (id) => {
+      initialized = true;
+      manuallyEdited = true;
+      selected = selected.filter((item) => item.id !== id);
+    },
+    selected: () => selected,
+  };
+};
 
 test("serviço único inicia sozinho na etapa 1", () => {
   const selected = initialize({ catalog: services, routeId: 1 });
@@ -51,11 +86,43 @@ test("não é permitido remover o último serviço", () => {
   assert.match(booking, /if \(selectedServices\.length === 1\) \{\s*return;/);
 });
 
-test("BUG DE CARACTERIZAÇÃO: catálogo tardio não adiciona serviço a uma seleção vazia", () => {
-  const initial = initialize({ catalog: [], routeId: 1 });
-  const routeServiceAfterLoad = services[0];
-  const currentEffect = initial.map((item) => item.id === 1 ? routeServiceAfterLoad : item);
-  assert.deepEqual(currentEffect, []);
-  assert.match(booking, /setSelectedServices\(\(currentServices\) =>\s*currentServices\.map/);
+test("catálogo tardio inicializa o serviço da rota uma única vez", () => {
+  const model = createSelectionModel({ routeId: 1 });
+  model.sync([]);
+  assert.deepEqual(model.selected(), []);
+  model.sync(services);
+  model.sync(services);
+  assert.deepEqual(model.selected().map((item) => item.id), [1]);
+  assert.match(selectionHook, /initializedRef/);
 });
 
+test("catálogo tardio preserva múltiplos IDs válidos e ignora inexistentes", () => {
+  const model = createSelectionModel({ routeId: 1, preselected: [2, 999, 1] });
+  model.sync([]);
+  model.sync(services);
+  assert.deepEqual(model.selected().map((item) => item.id), [1, 2]);
+});
+
+test("serviço removido manualmente não reaparece após atualização do catálogo", () => {
+  const model = createSelectionModel({ routeId: 1, preselected: [1, 2] });
+  model.sync(services);
+  model.remove(2);
+  model.sync(services.map((item) => ({ ...item, title: `${item.title} atualizado` })));
+  assert.deepEqual(model.selected().map((item) => item.id), [1]);
+});
+
+test("serviço adicionado manualmente permanece após nova sincronização", () => {
+  const model = createSelectionModel({ routeId: 1 });
+  model.sync(services);
+  model.add(services[1]);
+  model.sync(services);
+  assert.deepEqual(model.selected().map((item) => item.id), [1, 2]);
+});
+
+test("catálogo atualizado renova dados sem recriar seleção removida", () => {
+  const model = createSelectionModel({ routeId: 1, preselected: [1, 2] });
+  model.sync(services);
+  model.remove(2);
+  model.sync([{ ...services[0], title: "Serviço A novo", durationMinutes: 75, price: "R$ 120,00" }, services[1]]);
+  assert.deepEqual(model.selected(), [{ ...services[0], title: "Serviço A novo", durationMinutes: 75, price: "R$ 120,00" }]);
+});

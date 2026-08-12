@@ -97,22 +97,12 @@ function Booking() {
 
   const {
     selectedServices,
-    setSelectedServices,
     showServiceSelector,
     addService,
     removeService,
     openServiceSelector,
     closeServiceSelector,
   } = useBookingSelection({ services, service, preselectedServiceIds });
-
-  useEffect(() => {
-    if (!service) return;
-    setSelectedServices((currentServices) =>
-      currentServices.map((currentService) =>
-        currentService.id === Number(id) ? service : currentService
-      )
-    );
-  }, [id, service, setSelectedServices]);
   const [step, setStep] = useState(fitPayment ? 4 : 1);
   const stepperStep = Math.min(step, 3);
   const [bookingType, setBookingType] =
