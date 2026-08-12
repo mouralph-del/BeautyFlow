@@ -4,6 +4,7 @@ import test from "node:test";
 import { getTimeSlotStatus } from "../src/utils/timeUtils.js";
 
 const booking = readFileSync("src/pages/Booking.jsx", "utf8");
+const availabilityHook = readFileSync("src/hooks/useBookingAvailability.js", "utf8");
 const date = new Date("2026-08-13T12:00:00");
 const schedule = { opening: "09:00", closing: "18:00", breakStart: "12:00", breakEnd: "13:30" };
 const status = (overrides = {}) => getTimeSlotStatus({ startTime: "10:00", durationMinutes: 60, selectedDate: date, bookedAppointments: [], scheduleOverride: schedule, ...overrides });
@@ -50,8 +51,11 @@ test("consulta de exceções ignora resposta após cleanup", () => {
   assert.match(effect, /return \(\) => \{ active = false; \}/);
 });
 
-test("BUG DE CARACTERIZAÇÃO: consulta de ocupações não protege respostas fora de ordem", () => {
-  const effect = booking.slice(booking.indexOf("const fetchBookedTimes"), booking.indexOf("const handleBookingRequest"));
-  assert.match(effect, /setBookedAppointments\(appointments\)/);
-  assert.doesNotMatch(effect, /active|requestId|AbortController/);
+test("consulta de ocupações ignora respostas fora de ordem", () => {
+  const fetchStart = availabilityHook.indexOf("const fetchBookedTimes");
+  const effectStart = availabilityHook.lastIndexOf("useEffect", fetchStart);
+  const effect = availabilityHook.slice(effectStart);
+  assert.match(effect, /let active = true/);
+  assert.match(effect, /if \(active\) setBookedAppointments\(appointments\)/);
+  assert.match(effect, /return \(\) => \{ active = false; \}/);
 });

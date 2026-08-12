@@ -368,8 +368,6 @@ function Booking() {
    * getPublicDayAvailability
    * let active = true
    * return () => { active = false; }
-   * const fetchBookedTimes
-   * setBookedAppointments(appointments)
    */
   const handleBookingRequest = async () => {
     setIsSubmittingRequest(true);

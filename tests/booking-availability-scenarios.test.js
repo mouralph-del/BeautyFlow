@@ -99,28 +99,87 @@ const isAvailableDay = (date, releasedMonths, availableDays) => {
   return released && availableDays.includes(date.getDay())
 }
 
-test('carregamentos concorrentes de horários ocupados caracterizam a resposta tardia que sobrescreve a atual', async () => {
-  const requestA = deferred()
-  const requestB = deferred()
-  let selectedDate = '2026-08-10'
+const createBookedTimesLoader = () => {
   let bookedTimes = []
+  let cleanupCurrent = () => {}
 
-  const load = async (date, request) => {
-    selectedDate = date
-    bookedTimes = await request.promise
+  const load = (request) => {
+    cleanupCurrent()
+    let active = true
+    const completion = request.promise
+      .then((appointments) => {
+        if (active) bookedTimes = appointments
+      })
+      .catch(() => {
+        if (active) bookedTimes = []
+      })
+    cleanupCurrent = () => { active = false }
+    return completion
   }
 
-  const loadA = load('2026-08-10', requestA)
-  const loadB = load('2026-08-11', requestB)
+  return { load, getBookedTimes: () => bookedTimes }
+}
+
+test('carregamentos concorrentes preservam B quando a resposta tardia de A termina depois', async () => {
+  const requestA = deferred()
+  const requestB = deferred()
+  const loader = createBookedTimesLoader()
+  const loadA = loader.load(requestA)
+  const loadB = loader.load(requestB)
   requestB.resolve(['14:00'])
   await loadB
-  assert.deepEqual(bookedTimes, ['14:00'])
+  assert.deepEqual(loader.getBookedTimes(), ['14:00'])
 
   requestA.resolve(['09:00'])
   await loadA
+  assert.deepEqual(loader.getBookedTimes(), ['14:00'])
+})
 
-  assert.equal(selectedDate, '2026-08-11')
-  assert.deepEqual(bookedTimes, ['09:00'], 'bug preservado: a resposta antiga substitui a data atual')
+test('mudança A para B para C preserva C independentemente da ordem das respostas antigas', async () => {
+  const requestA = deferred()
+  const requestB = deferred()
+  const requestC = deferred()
+  const loader = createBookedTimesLoader()
+  const loadA = loader.load(requestA)
+  const loadB = loader.load(requestB)
+  const loadC = loader.load(requestC)
+
+  requestC.resolve(['16:00'])
+  await loadC
+  requestA.resolve(['09:00'])
+  requestB.resolve(['11:00'])
+  await Promise.all([loadA, loadB])
+
+  assert.deepEqual(loader.getBookedTimes(), ['16:00'])
+})
+
+test('respostas em ordem normal continuam atualizando a data ativa', async () => {
+  const requestA = deferred()
+  const requestB = deferred()
+  const loader = createBookedTimesLoader()
+  const loadA = loader.load(requestA)
+  requestA.resolve(['09:00'])
+  await loadA
+  assert.deepEqual(loader.getBookedTimes(), ['09:00'])
+
+  const loadB = loader.load(requestB)
+  requestB.resolve(['14:00'])
+  await loadB
+  assert.deepEqual(loader.getBookedTimes(), ['14:00'])
+})
+
+test('erro tardio de uma requisição antiga não limpa os horários da data atual', async () => {
+  const requestA = deferred()
+  const requestB = deferred()
+  const loader = createBookedTimesLoader()
+  const loadA = loader.load(requestA)
+  const loadB = loader.load(requestB)
+  requestB.resolve(['15:30'])
+  await loadB
+
+  requestA.reject(new Error('falha antiga'))
+  await loadA
+  assert.deepEqual(loader.getBookedTimes(), ['15:30'])
 })
 
 test('cleanup ativo ignora resposta antiga da disponibilidade diária', async () => {

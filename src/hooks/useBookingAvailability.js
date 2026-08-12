@@ -132,6 +132,7 @@ function useBookingAvailability({
   }, [selectedDate, formatDate]);
 
   useEffect(() => {
+    let active = true;
     const fetchBookedTimes = async () => {
       if (!selectedDate) {
         setBookedAppointments([]);
@@ -141,14 +142,17 @@ function useBookingAvailability({
       const formattedDate = formatDate(selectedDate);
       try {
         const appointments = await getBookedTimesByDate(formattedDate);
-        setBookedAppointments(appointments);
+        if (active) setBookedAppointments(appointments);
       } catch {
-        console.error("Não foi possível buscar os horários ocupados.");
-        setBookedAppointments([]);
+        if (active) {
+          console.error("Não foi possível buscar os horários ocupados.");
+          setBookedAppointments([]);
+        }
       }
     };
 
     fetchBookedTimes();
+    return () => { active = false; };
   }, [selectedDate, formatDate]);
 
   return {
