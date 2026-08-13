@@ -36,9 +36,17 @@
   inset: 0 auto 0 0;
   z-index: 30;
   width: 260px;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
   padding: 26px 18px;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   background: #f2e7dc;
   border-right: 1px solid #e1cdbd;
 }
@@ -628,7 +636,17 @@
 
 .monthly-release-card h3 { margin:0 0 8px; font:700 21px Georgia,serif; text-transform:capitalize; }
 .monthly-release-card > p { max-width:720px; color:var(--admin-muted); line-height:1.6; }
-.monthly-release-actions { display:flex; gap:10px; margin-top:20px; }
+.monthly-release-actions { display:flex; align-items:center; justify-content:flex-start; flex-wrap:wrap; gap:10px; margin-top:20px; }
+.monthly-release-actions .admin-action,
+.monthly-release-actions .admin-primary { min-height:42px; padding:10px 16px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; font:600 13px inherit; text-decoration:none; cursor:pointer; transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease; }
+.monthly-release-actions .admin-action { color:#805a40; background:#fff; border:1px solid #e4d6ca; }
+.monthly-release-actions .admin-primary { color:#fff; background:var(--admin-copper); border:1px solid var(--admin-copper); }
+.monthly-release-actions .admin-action:hover { background:#faf5f1; border-color:#c9aa94; }
+.monthly-release-actions .admin-primary:hover { background:#805238; border-color:#805238; }
+.monthly-release-actions .admin-action:focus-visible,
+.monthly-release-actions .admin-primary:focus-visible { outline:3px solid rgba(154,101,67,.22); outline-offset:2px; }
+.monthly-release-actions .admin-action:disabled,
+.monthly-release-actions .admin-primary:disabled { opacity:.6; cursor:not-allowed; }
 .monthly-release-details { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:20px 0 0; }
 .monthly-release-details div { padding:13px; background:#faf7f4; border-radius:10px; }
 .monthly-release-details dt { color:var(--admin-muted); font-size:11px; }
@@ -1032,7 +1050,7 @@
   .admin-section__heading { align-items:flex-start; flex-direction:column; }
   .appointments-month-navigation { width:100%; justify-content:space-between; }
   .monthly-release-actions,.schedule-review-modal > footer { flex-direction:column; }
-  .monthly-release-actions button,.schedule-review-modal > footer button { width:100%; }
+  .monthly-release-actions > *,.schedule-review-modal > footer button { width:100%; }
   .monthly-release-details,.schedule-default-hours { grid-template-columns:1fr; }
   .schedule-special-form { grid-template-columns:1fr 1fr; }
   .schedule-review-overlay { padding:0; }

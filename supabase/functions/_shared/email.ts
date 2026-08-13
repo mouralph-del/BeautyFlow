@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { EMAIL_SIGNATURE, renderEmailLayout, renderTemplate } from "./email-template.js";
+import { EMAIL_SIGNATURE, renderEmailLayout, renderPaymentConfirmedAddress, renderTemplate } from "./email-template.js";
 
 export type AdminClient = SupabaseClient;
 
@@ -91,12 +91,26 @@ export async function sendTemplateEmail({
   if (!environment.resendApiKey) throw new Error("RESEND_API_KEY não configurada; envio registrado para nova tentativa.");
   if (!environment.emailFrom) throw new Error("PAYMENT_EMAIL_FROM não configurado; envio registrado para nova tentativa.");
 
-  const templateVariables = { site_url: environment.siteUrl || "", ...variables };
+  let privateTemplateVariables: Record<string, unknown> = {};
+  if (templateId === "payment_confirmed") {
+    const { data: studioSettings } = await client
+      .from("studio_settings")
+      .select("private_data")
+      .eq("id", "main")
+      .maybeSingle();
+    const fullAddress = studioSettings?.private_data?.full_address;
+    if (typeof fullAddress === "string" && fullAddress.trim()) {
+      privateTemplateVariables = { full_address: fullAddress.trim() };
+    }
+  }
+
+  const templateVariables = { site_url: environment.siteUrl || "", ...variables, ...privateTemplateVariables };
   const subject = renderTemplate(effectiveTemplate.subject, templateVariables);
   const html = renderEmailLayout({
     title: renderTemplate(effectiveTemplate.title, templateVariables, { html: true }),
     subtitle: renderTemplate(effectiveTemplate.subtitle, templateVariables, { html: true }),
     body: renderTemplate(effectiveTemplate.body, templateVariables, { html: true }),
+    afterBody: renderPaymentConfirmedAddress(templateId, templateVariables),
     signature: renderTemplate(effectiveTemplate.signature || EMAIL_SIGNATURE, templateVariables, { html: true }),
     buttonText: renderTemplate(effectiveTemplate.button_text, templateVariables),
     buttonUrl: renderTemplate(effectiveTemplate.button_url, templateVariables),

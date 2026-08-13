@@ -1,14 +1,12 @@
 import {
   CalendarDays,
   CircleDollarSign,
-  ClipboardList,
   GalleryHorizontal,
   Globe2,
   Gift,
   Info,
   LayoutDashboard,
   MessageSquareMore,
-  MessageSquarePlus,
   Scissors,
   Settings,
   Users,
@@ -21,8 +19,6 @@ import useAccessibleDrawer from "../../hooks/useAccessibleDrawer";
 
 const items = [
   { label: "Visão Geral", to: "/admin", icon: LayoutDashboard },
-  { label: "Homologação", to: "/admin/homologacao", icon: ClipboardList },
-  { label: "Feedback", to: "/admin/feedback", icon: MessageSquarePlus },
   { label: "Agenda", to: "/admin/agenda", icon: CalendarDays },
   { label: "Solicitações", to: "/admin/solicitacoes", icon: MessageSquareMore },
   { label: "Clientes", to: "/admin/clientes", icon: Users },

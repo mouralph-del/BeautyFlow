@@ -213,6 +213,12 @@
   }
 }
 
+@media (min-width: 561px) and (max-width: 850px) {
+  .home-hero {
+    padding-left: 36px;
+  }
+}
+
 @media (max-width: 560px) {
   .home-hero { padding: 38px 16px 34px; }
   .hero-eyebrow { margin-bottom:14px; font-size:11px; line-height:1.55; }
