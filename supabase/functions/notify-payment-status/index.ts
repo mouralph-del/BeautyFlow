@@ -19,7 +19,7 @@ Deno.serve(async (request) => {
       .eq("id", appointmentId).single();
     if (error) throw error;
     const templateId = approved ? "payment_confirmed" : "payment_refused";
-    const preferenceId = approved ? "payment_proof" : "payment_refused";
+    const preferenceId = approved ? "payment_confirmed" : "payment_refused";
     const result = await sendTemplateEmail({
       client, recipient: appointment.email, templateId, preferenceId,
       eventKey: `payment-${approved ? "approved" : "rejected"}:${appointmentId}`,

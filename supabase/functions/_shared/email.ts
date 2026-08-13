@@ -3,6 +3,8 @@ import { EMAIL_SIGNATURE, renderEmailLayout, renderPaymentConfirmedAddress, rend
 
 export type AdminClient = SupabaseClient;
 
+const requiredTransactionalPreferences = new Set(["payment_confirmed", "payment_refused"]);
+
 export const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-beautyflow-automation-secret",
@@ -83,7 +85,7 @@ export async function sendTemplateEmail({
 
   const effectiveTemplate = template || fallback;
   const effectivePriority = priority || preference?.priority || "normal";
-  if (preference && !preference.email_enabled) {
+  if (preference && !preference.email_enabled && !requiredTransactionalPreferences.has(preferenceId)) {
     await client.from("email_delivery_logs").insert({ recipient, template_id: templateId, preference_id: preferenceId, event_key: eventKey, priority: effectivePriority, status: "skipped", error_message: "E-mail desativado nas preferências." });
     return { sent: false, skipped: true };
   }
