@@ -14,8 +14,8 @@ function AdminNotifications({ notifications, onViewDetails }) {
 
       <div>
         {notifications.map((notification) => (
-          <article key={notification.id}>
-            <span className="admin-notification-list__dot" />
+          <article key={notification.id} aria-label={notification.is_read ? "Notificação lida" : "Notificação não lida"}>
+            {!notification.is_read && <span className="admin-notification-list__dot" />}
             <div>
               <strong>{notification.title}</strong>
               <p>{notification.message}</p>
@@ -34,4 +34,3 @@ function AdminNotifications({ notifications, onViewDetails }) {
 }
 
 export default AdminNotifications;
-

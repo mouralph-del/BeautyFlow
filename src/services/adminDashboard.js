@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { getNotificationCenter } from "./adminNotifications";
 
 const startOfMonth = (date) =>
   new Date(date.getFullYear(), date.getMonth(), 1);
@@ -70,15 +71,11 @@ export const getAdminDashboardData = async (referenceDate = new Date()) => {
         "Solicitações",
         warnings
       ),
-      queryOrWarning(
-        supabase
-          .from("admin_notifications")
-          .select("id, appointment_id, type, title, message, read_at, created_at")
-          .order("created_at", { ascending: false })
-          .limit(20),
-        "Notificações administrativas",
-        warnings
-      ),
+      getNotificationCenter()
+        .catch((error) => {
+          warnings.push(`Notificações administrativas: ${error.message}`);
+          return { items: [], unread_count: 0 };
+        }),
       supabase.rpc("get_admin_daily_experience").then(({ data, error }) => {
         if (error) {
           warnings.push(`Experiência diária: ${error.message}`);
@@ -103,7 +100,8 @@ export const getAdminDashboardData = async (referenceDate = new Date()) => {
       services: servicesByAppointment[String(appointment.id)] ?? [],
     })),
     bookingRequests,
-    notifications,
+    notifications: notifications.items,
+    notificationUnreadCount: notifications.unread_count,
     warnings,
     period: {
       start: monthStart,

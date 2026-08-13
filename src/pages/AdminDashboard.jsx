@@ -18,6 +18,7 @@ import PendingList from "../components/admin/PendingList";
 import FirstAccessChecklist from "../components/admin/FirstAccessChecklist";
 import Modal from "../components/Modal/Modal";
 import { getAdminDashboardData } from "../services/adminDashboard";
+import { markNotificationRead } from "../services/adminNotifications";
 import { useAuth } from "../contexts/useAuth";
 import { getAdminFirstName } from "../utils/dailyExperience";
 import services from "../data/services";
@@ -42,6 +43,7 @@ function AdminDashboard() {
     appointments: [],
     bookingRequests: [],
     notifications: [],
+    notificationUnreadCount: 0,
     warnings: [],
   });
   const [loading, setLoading] = useState(true);
@@ -198,17 +200,29 @@ function AdminDashboard() {
     },
     ...(data.notifications.some((notification) => notification.type?.startsWith("schedule_release_reminder_")) ? [{
       label: "Agenda do próximo mês ainda não liberada",
-      value: data.notifications.filter((notification) => !notification.read_at && notification.type?.startsWith("schedule_release_reminder_")).length,
+      value: data.notifications.filter((notification) => !notification.is_read && notification.type?.startsWith("schedule_release_reminder_")).length,
       action: "Revisar e liberar",
       onClick: () => setScheduleReviewSignal((value) => value + 1),
       tone: "gold",
     }] : []),
   ];
 
-  const notifications =
-    metrics.paymentReview +
-    pendingItems[1].value +
-    data.notifications.filter((notification) => !notification.read_at).length;
+  const notifications = data.notificationUnreadCount;
+
+  const viewNotification = async (notification) => {
+    setSelectedNotification(notification);
+    if (notification.is_read) return;
+    try {
+      await markNotificationRead(notification.id);
+      setData((current) => ({
+        ...current,
+        notificationUnreadCount: Math.max(0, current.notificationUnreadCount - 1),
+        notifications: current.notifications.map((item) => item.id === notification.id ? { ...item, is_read: true } : item),
+      }));
+    } catch {
+      console.error("Não foi possível marcar a notificação como lida.");
+    }
+  };
 
   return (
     <AdminLayout notifications={notifications}>
@@ -281,7 +295,7 @@ function AdminDashboard() {
 
       <AdminNotifications
         notifications={data.notifications}
-        onViewDetails={setSelectedNotification}
+        onViewDetails={viewNotification}
       />
 
       <div className="admin-overview-bottom-grid">
