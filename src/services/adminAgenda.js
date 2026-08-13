@@ -45,6 +45,7 @@ export async function getAdminAgenda(start, end) {
 export async function getAdminHolidays(from, to) { const { data,error }=await supabase.rpc("admin_get_holidays",{date_from:from,date_to:to}); if(error)throw error; return data??[]; }
 export async function saveAdminHoliday(payload,id=null) { const {data,error}=await supabase.rpc("admin_save_holiday",{payload,target_id:id}); if(error)throw error; return data; }
 export async function setAdminHolidayActive(id,isActive) { const {error}=await supabase.rpc("admin_set_holiday_active",{target_id:id,active_value:isActive}); if(error)throw error; }
+export async function decideCommercialOpportunity(id,decision) { const {error}=await supabase.rpc("admin_decide_commercial_opportunity",{target_id:id,target_decision:decision}); if(error)throw error; }
 export async function finalizeAppointment(payload) { const {data,error}=await supabase.rpc("admin_finalize_appointment",{payload}); if(error)throw error; return data; }
 
 export async function createAgendaBlock(values) {

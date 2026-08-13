@@ -62,8 +62,9 @@ function OutcomeModal({ appointment, mode, saving, error, onClose, onSubmit }) {
 
 function AdminAgenda() {
   const [searchParams] = useSearchParams();
-  const [referenceDate, setReferenceDate] = useState(new Date());
-  const [view, setView] = useState("week");
+  const requestedDate = /^\d{4}-\d{2}-\d{2}$/.test(searchParams.get("date") || "") ? new Date(`${searchParams.get("date")}T12:00:00`) : null;
+  const [referenceDate, setReferenceDate] = useState(requestedDate && !Number.isNaN(requestedDate.getTime()) ? requestedDate : new Date());
+  const [view, setView] = useState(searchParams.get("view") === "day" ? "day" : "week");
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [data, setData] = useState({ appointments: [], blocks: [], specialHours: [], holidays: [] });

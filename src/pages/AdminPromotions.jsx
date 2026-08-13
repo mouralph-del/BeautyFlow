@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CalendarClock, CircleCheck, Gift, Plus, RefreshCw, Search, TimerOff } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import AdminLayout from "../components/admin/AdminLayout";
 import SharedModal from "../components/Modal/Modal";
 import { calculatePromotion, changePromotionStatus, deletePromotion, duplicatePromotion, getAdminPromotions, promotionStatus, savePromotion } from "../services/promotions";
@@ -7,12 +8,18 @@ import "./AdminPromotions.css";
 import useAccessibleDrawer from "../hooks/useAccessibleDrawer";
 
 const initialForm = { internal_name:"",title:"",short_description:"",full_description:"",discount_type:"percentage",discount_value:"",promotional_price:"",starts_at:"",ends_at:"",status:"draft",usage_limit:"",highlight_home:false,highlight_customer_area:false,display_order:0,button_text:"Ver promoção",button_target:"/servicos",apply_to_reservation_fee:false,email_enabled:false,applies_to_all_services:false,service_ids:[] };
+const commercialDraft = (params) => {
+ const occasion=(params.get("occasion")||"").trim().slice(0,80); const reference=/^\d{4}-\d{2}-\d{2}$/.test(params.get("date")||"")?params.get("date"):"";
+ if(!occasion||!reference||!params.get("holiday"))return null;
+ return {...initialForm,internal_name:occasion,title:occasion,short_description:`Ação especial para ${occasion}.`,starts_at:`${reference}T00:00`,ends_at:`${reference}T23:59`};
+};
 const labels = { draft:"Rascunho",scheduled:"Agendada",active:"Ativa",paused:"Pausada",ended:"Encerrada",expired:"Expirada" };
 const money = (value) => Number(value||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 const date = (value) => value ? new Date(value).toLocaleDateString("pt-BR") : "—";
 
 function AdminPromotions(){
- const [data,setData]=useState({promotions:[],services:[]}); const [loading,setLoading]=useState(true); const [error,setError]=useState(""); const [message,setMessage]=useState(""); const [filter,setFilter]=useState("all"); const [search,setSearch]=useState(""); const [period,setPeriod]=useState("all"); const [editing,setEditing]=useState(null); const [drawerOpen,setDrawerOpen]=useState(false); const [form,setForm]=useState(initialForm); const [saving,setSaving]=useState(false); const [confirm,setConfirm]=useState(null); const [history,setHistory]=useState(null);
+ const [searchParams]=useSearchParams(); const suggestedDraft=useMemo(()=>commercialDraft(searchParams),[searchParams]);
+ const [data,setData]=useState({promotions:[],services:[]}); const [loading,setLoading]=useState(true); const [error,setError]=useState(""); const [message,setMessage]=useState(""); const [filter,setFilter]=useState("all"); const [search,setSearch]=useState(""); const [period,setPeriod]=useState("all"); const [editing,setEditing]=useState(null); const [drawerOpen,setDrawerOpen]=useState(Boolean(suggestedDraft)); const [form,setForm]=useState(suggestedDraft||initialForm); const [saving,setSaving]=useState(false); const [confirm,setConfirm]=useState(null); const [history,setHistory]=useState(null);
  const load=async()=>{setLoading(true);setError("");try{setData(await getAdminPromotions())}catch(err){console.error(err);setError("Não foi possível carregar as promoções.")}finally{setLoading(false)}};
  useEffect(()=>{load()},[]);
  const normalized=useMemo(()=>data.promotions.map(p=>({...p,computedStatus:promotionStatus(p)})),[data.promotions]);
