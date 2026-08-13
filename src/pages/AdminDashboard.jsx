@@ -44,6 +44,7 @@ function AdminDashboard() {
     bookingRequests: [],
     notifications: [],
     notificationUnreadCount: 0,
+    operationalStatus: null,
     warnings: [],
   });
   const [loading, setLoading] = useState(true);
@@ -240,6 +241,19 @@ function AdminDashboard() {
           {data.warnings.map((warning) => (
             <span key={warning}>{warning}</span>
           ))}
+        </div>
+      )}
+
+      {data.operationalStatus && (
+        Number(data.operationalStatus.recent_failed_count || 0) +
+        Number(data.operationalStatus.stuck_processing_count || 0) +
+        Number(data.operationalStatus.stale_pending_count || 0)
+      ) > 0 && (
+        <div className="admin-data-warning" role="alert">
+          <strong>As automações precisam de atenção.</strong>
+          <span>
+            Falhas recentes: {data.operationalStatus.recent_failed_count || 0} · Processamentos presos: {data.operationalStatus.stuck_processing_count || 0} · Pendências antigas: {data.operationalStatus.stale_pending_count || 0}
+          </span>
         </div>
       )}
 

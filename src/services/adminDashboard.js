@@ -36,6 +36,7 @@ export const getAdminDashboardData = async (referenceDate = new Date()) => {
     bookingRequests,
     notifications,
     dailyExperience,
+    operationalStatus,
   ] =
     await Promise.all([
       queryOrWarning(
@@ -83,6 +84,13 @@ export const getAdminDashboardData = async (referenceDate = new Date()) => {
         }
         return data;
       }),
+      supabase.rpc("get_admin_automation_health").then(({ data, error }) => {
+        if (error) {
+          warnings.push(`Status das automações: ${error.message}`);
+          return null;
+        }
+        return data;
+      }),
     ]);
 
   const servicesByAppointment = appointmentServices.reduce(
@@ -111,6 +119,7 @@ export const getAdminDashboardData = async (referenceDate = new Date()) => {
     dailyVerse: dailyExperience?.morning_verse ?? null,
     closingVerse: dailyExperience?.closing_verse ?? null,
     dailyPreferences: dailyExperience?.preferences ?? null,
+    operationalStatus,
   };
 };
 
