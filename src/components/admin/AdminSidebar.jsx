@@ -78,20 +78,9 @@ function AdminSidebar({ open, onClose }) {
           ))}
         </nav>
 
-        <VerseCard />
       </aside>
     </>
   );
 }
 
-function VerseCard() {
-  return (
-    <blockquote className="verse-card">
-      <p>“O Senhor é o meu pastor; nada me faltará.”</p>
-      <cite>Salmos 23:1</cite>
-    </blockquote>
-  );
-}
-
-export { VerseCard };
 export default AdminSidebar;
