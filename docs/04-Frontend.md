@@ -77,7 +77,7 @@ O código comum foi explicitado em `vendor-react` (232,36 kB; 74,73 kB gzip) e `
 ## Sprint 2 — Experiência da cliente
 
 - Implementado sistema padrão de skeletons em `src/components/Skeleton` para unificar carregamentos.
-- Adicionado `ToastProvider` em `src/components/Toast` e hook `src/hooks/useToast.js` para notificações padronizadas.
+- Adicionado `ToastProvider` em `src/components/Toast` como infraestrutura para notificações padronizadas.
 - Componente `Avatar` em `src/components/Avatar` com fallback para iniciais e skeleton enquanto carrega.
 - Componente `ImageWithFallback` em `src/components/Image` para evitar imagens quebradas em cards e galerias.
 - Não houve alterações em banco, Supabase, migrations, RPCs, Edge Functions ou regras de negócio.

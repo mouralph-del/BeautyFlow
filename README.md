@@ -68,7 +68,7 @@ O fluxo público pode ser conhecido pelas telas reais abaixo, capturadas localme
 - Análise de comprovantes e acompanhamento de cancelamentos.
 - Feriados, bloqueios, horários especiais e liberação mensal.
 - Conclusão manual, não comparecimento e experiência diária.
-- Checklists de primeiro acesso e homologação, além de painel local de feedback.
+- Checklist de primeiro acesso para preparação administrativa do estúdio.
 
 ### Automações
 
