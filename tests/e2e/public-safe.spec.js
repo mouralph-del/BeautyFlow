@@ -57,10 +57,10 @@ test("login permite lembrar somente o e-mail", async ({ page }) => {
   expect(JSON.stringify(storage)).not.toContain("password");
 });
 
-for (const [width, height] of [[360,800],[390,844],[430,932],[768,1024],[1024,768],[1366,768],[1920,1080]]) {
+for (const [width, height] of [[360,640],[390,844],[430,932],[768,1024],[820,1180],[1024,768],[1366,768],[1920,1080]]) {
   test(`páginas críticas não têm rolagem horizontal em ${width}x${height}`, async ({ page }) => {
     await page.setViewportSize({ width, height });
-    for (const route of ["/entrar", "/recuperar-senha", "/contato", "/pagina-que-nao-existe"]) {
+    for (const route of ["/entrar", "/recuperar-senha", "/contato", "/agendamento/1", "/pagina-que-nao-existe"]) {
       await page.goto(route);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow, `${route} excedeu a viewport`).toBeLessThanOrEqual(1);

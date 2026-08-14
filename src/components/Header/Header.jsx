@@ -50,13 +50,13 @@ function Header() {
           <div><Link to="/admin">Voltar ao painel</Link><button type="button" onClick={handleSignOut}>Sair</button></div>
         </aside>
       )}
-      <header className="header">
+      <header className={`header${user && !isAdmin ? " header--customer" : ""}`}>
         <Container>
           <div className="header__content">
             <Link to="/" className="header-brand"><span className="header-brand__logo-frame"><BrandLogo className="header-brand__logo" /></span></Link>
-            <button type="button" className="header-menu-button" aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={mobileMenuOpen} aria-controls="mobile-navigation" onClick={() => setMobileMenuOpen((open) => !open)}>
+            {(!user || isAdmin) && <button type="button" className="header-menu-button" aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"} aria-expanded={mobileMenuOpen} aria-controls="mobile-navigation" onClick={() => setMobileMenuOpen((open) => !open)}>
               {mobileMenuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-            </button>
+            </button>}
             <nav id="mobile-navigation" ref={mobileMenuRef} tabIndex="-1" className={`header__nav${mobileMenuOpen ? " is-open" : ""}`} aria-label="Navegação principal">
               <NavLink to="/" end>{menu.home}</NavLink><NavLink to="/servicos">Serviços</NavLink><NavLink to="/minha-historia">Minha História</NavLink><NavLink to="/galeria">{menu.gallery}</NavLink><NavLink to="/contato">{menu.contact}</NavLink>
               {!user && <div className="header__mobile-auth"><Link to="/entrar">Entrar</Link><Link to="/cadastro" className="header-signup">Cadastrar-se</Link></div>}
@@ -69,7 +69,7 @@ function Header() {
           </div>
         </Container>
       </header>
-      {mobileMenuOpen && <button type="button" className="header-menu-backdrop" aria-label="Fechar menu" onClick={() => setMobileMenuOpen(false)} />}
+      {mobileMenuOpen && (!user || isAdmin) && <button type="button" className="header-menu-backdrop" aria-label="Fechar menu" onClick={() => setMobileMenuOpen(false)} />}
       {user && !isAdmin && <CustomerAccountDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} onSignOut={handleSignOut} name={fullName} user={user} />}
     </>
   );

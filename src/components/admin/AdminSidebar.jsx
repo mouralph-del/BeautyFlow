@@ -9,6 +9,7 @@ import {
   MessageSquareMore,
   Scissors,
   Settings,
+  SlidersHorizontal,
   Users,
   X,
 } from "lucide-react";
@@ -31,7 +32,8 @@ const items = [
     icon: CircleDollarSign,
   },
   { label: "Ver site", to: "/", icon: Globe2 },
-  { label: "Configurações", to: "/admin/configuracoes", icon: Settings },
+  { label: "Minha conta", to: "/admin/configuracoes", icon: Settings },
+  { label: "Configurações do site", to: "/admin/configuracoes-site", icon: SlidersHorizontal },
   { label: "Sobre o BeautyFlow", to: "/admin/sobre", icon: Info },
 ];
 

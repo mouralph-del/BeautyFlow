@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { CalendarDays, Heart, LogOut, Settings, X } from "lucide-react";
+import { BookOpen, CalendarDays, Heart, House, Images, LogOut, Mail, Scissors, Settings, X } from "lucide-react";
 import Avatar from "../Avatar/Avatar";
 import { NavLink } from "react-router-dom";
 
@@ -44,9 +44,14 @@ export default function CustomerAccountDrawer({ open, onClose, onSignOut, name, 
           <div><strong id="customer-drawer-title">{name}</strong><small id="customer-drawer-description">Cliente desde {memberSince}</small></div>
         </header>
         <nav>
-          <NavLink to="/minha-conta" end><Heart /> Meu Espaço</NavLink>
-          <NavLink to="/minha-conta/agendamentos"><CalendarDays /> Meus Agendamentos</NavLink>
-          <NavLink to="/minha-conta/configuracoes"><Settings /> Configurações</NavLink>
+          <NavLink to="/minha-conta" end onClick={onClose}><Heart /> Meu Espaço</NavLink>
+          <NavLink to="/minha-conta/agendamentos" onClick={onClose}><CalendarDays /> Meus Agendamentos</NavLink>
+          <NavLink to="/minha-conta/configuracoes" onClick={onClose}><Settings /> Configurações</NavLink>
+          <NavLink to="/" end onClick={onClose}><House /> Início</NavLink>
+          <NavLink to="/servicos" onClick={onClose}><Scissors /> Serviços</NavLink>
+          <NavLink to="/minha-historia" onClick={onClose}><BookOpen /> Minha História</NavLink>
+          <NavLink to="/galeria" onClick={onClose}><Images /> Galeria</NavLink>
+          <NavLink to="/contato" onClick={onClose}><Mail /> Contato</NavLink>
         </nav>
         <button className="customer-drawer__logout" type="button" onClick={onSignOut}><LogOut /> Sair</button>
         <blockquote>“A verdadeira beleza está nos detalhes e no cuidado com cada cliente. 🤎”</blockquote>

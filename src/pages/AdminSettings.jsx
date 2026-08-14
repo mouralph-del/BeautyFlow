@@ -1,20 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
-import { Bell, Building2, CalendarClock, CreditCard, Eye, EyeOff, Globe2, LockKeyhole, Mail, RefreshCw, ShieldCheck, UserCog } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Bell, Building2, CalendarClock, CreditCard, Eye, EyeOff, Globe2, LockKeyhole, Mail, RefreshCw, ShieldCheck, User, UserCog } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import AdminLayout from "../components/admin/AdminLayout";
 import Modal from "../components/Modal/Modal";
 import PasswordInput from "../components/PasswordInput/PasswordInput";
 import { useAuth } from "../contexts/useAuth";
-import { getAdminSettings, saveAdminDailyPreference, saveAdminPreference, saveEmailTemplate, saveNotifications, savePolicy, saveSettings, setAdminRole, signOutAllSessions, updateAccountEmail, updatePassword } from "../services/settings";
+import { getAdminSettings, saveAdminDailyPreference, saveAdminPreference, saveEmailTemplate, saveNotifications, savePolicy, saveSettings, setAdminRole, signOutAllSessions, updateAccountEmail, updateAdminProfile, updatePassword } from "../services/settings";
 import "./AdminSettings.css";
 
-const tabs = [
+const siteTabs = [
   ["profile", "Perfil do estúdio", Building2], ["schedule", "Agenda e horários", CalendarClock],
   ["payments", "Pagamentos e Pix", CreditCard], ["policies", "Políticas", ShieldCheck],
   ["communication", "Comunicação e e-mails", Mail], ["site", "Site", Globe2],
-  ["admins", "Administradores", UserCog], ["security", "Segurança", LockKeyhole],
+  ["admins", "Administradores", UserCog],
 ];
+const adminTabs = [["account", "Minha conta", User], ["preferences", "Minhas preferências", Bell], ["security", "Segurança", LockKeyhole]];
 const days = [["1","Segunda"],["2","Terça"],["3","Quarta"],["4","Quinta"],["5","Sexta"],["6","Sábado"],["0","Domingo"]];
 const policyInfo = {
   reservation: ["Política de reserva", "Explica a finalidade da taxa e as condições aceitas ao reservar."],
@@ -25,10 +26,10 @@ const policyInfo = {
 const notificationLabels = { new_appointment:"Novo agendamento",admin_payment_review:"Comprovante enviado",cancellation:"Cancelamento",booking_request:"Encaixe",reschedule:"Remarcação",schedule_release:"Agenda do próximo mês",promotion_ending:"Promoção encerrando",new_customer:"Nova cliente" };
 const customerPaymentPreferences = new Set(["payment_analysis", "payment_confirmed", "payment_refused", "payment_proof"]);
 
-export default function AdminSettings() {
+export default function AdminSettings({ mode = "admin" }) {
   const { user } = useAuth();
   const [data, setData] = useState(null);
-  const [tab, setTab] = useState("profile");
+  const [tab, setTab] = useState(mode === "site" ? "profile" : "account");
   const [form, setForm] = useState(null);
   const [dirty, setDirty] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -38,12 +39,13 @@ export default function AdminSettings() {
   const [modal, setModal] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true); setError("");
     try {
       const result = await getAdminSettings();
       setData(result);
       setForm({
+        account: { name: user?.user_metadata?.name || "" },
         profile: { ...result.studio.public_data }, payments: { ...result.studio.private_data },
         site: { ...result.studio.public_data.site }, schedule: result.schedule.settings,
         policies: Object.fromEntries(result.policies.filter((p) => p.is_active).map((p) => [p.policy_type, p.content])),
@@ -52,14 +54,16 @@ export default function AdminSettings() {
       setSelectedTemplate(result.templates[0] || null); setDirty(false);
     } catch (loadError) { console.error(loadError); setError("Não foi possível carregar as configurações."); }
     finally { setLoading(false); }
-  };
-  useEffect(() => { load(); }, []);
+  }, [user?.user_metadata?.name]);
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => { setTab(mode === "site" ? "profile" : "account"); setDirty(false); }, [mode]);
 
   const update = (section, key, value) => { setForm((current) => ({ ...current, [section]: { ...current[section], [key]: value } })); setDirty(true); };
   const save = async (section) => {
     setSaving(true); setMessage("");
     try {
-      if (section === "policies") {
+      if (section === "account") await updateAdminProfile(form.account);
+      else if (section === "policies") {
         for (const [type, content] of Object.entries(form.policies)) {
           const old = data.policies.find((p) => p.policy_type === type && p.is_active)?.content;
           if (content !== old) await savePolicy(type, content);
@@ -75,17 +79,28 @@ export default function AdminSettings() {
   if (loading) return <AdminLayout><div className="settings-state">Carregando configurações...</div></AdminLayout>;
   if (error) return <AdminLayout><div className="settings-state error">{error}<button onClick={load}>Tentar novamente</button></div></AdminLayout>;
 
+  const tabs = mode === "site" ? siteTabs : adminTabs;
+  const ownPreferences = data.admin_preferences?.find((preference) => preference.admin_user_id === user?.id);
+
   return <AdminLayout><section className="admin-settings">
-    <header><div><span>PERSONALIZAÇÃO</span><h1>Configurações</h1><p>Personalize as informações do estúdio e o funcionamento do Beauty Studio.</p></div><div>{dirty && <strong>Alterações não salvas</strong>}<button onClick={load}><RefreshCw size={16}/> Atualizar</button></div></header>
+    <header><div><span>{mode === "site" ? "ESTÚDIO E SITE" : "CONTA ADMINISTRATIVA"}</span><h1>{mode === "site" ? "Configurações do site" : "Configurações da minha conta"}</h1><p>{mode === "site" ? "Gerencie informações compartilhadas do estúdio e do Beauty Studio." : "Gerencie seus dados, segurança e preferências individuais."}</p></div><div>{dirty && <strong>Alterações não salvas</strong>}<button onClick={load}><RefreshCw size={16}/> Atualizar</button></div></header>
     {message && <p className="settings-message" role="status">{message}</p>}
     <div className="settings-layout"><nav>{tabs.map(([id,label,Icon]) => <button className={tab === id ? "active" : ""} key={id} onClick={() => dirty && tab !== id ? setModal({ type:"unsaved", next:id }) : setTab(id)}><Icon size={17}/>{label}</button>)}</nav><main>
+      {tab === "account" && (
+        <AdminAccountSection form={form} update={update} saving={saving} onSave={() => save("account")}/>
+      )}
+      {tab === "preferences" && (
+        <AdminPreferencesSection values={ownPreferences} onSave={async (values, daily = false) => { try { if (daily) await saveAdminDailyPreference(user.id, values); else await saveAdminPreference(user.id, values); setMessage("Suas preferências foram atualizadas."); await load(); } catch (preferenceError) { setMessage(preferenceError.message || "Não foi possível atualizar suas preferências."); } }}/>
+      )}
       {tab === "profile" && <ProfileSection form={form} update={update} saving={saving} onSave={async () => { await save("profile"); await save("payments"); }}/>} 
       {tab === "schedule" && <ScheduleSection form={form} update={update} saving={saving} onSave={() => save("schedule")}/>} 
       {tab === "payments" && <PaymentsSection form={form} update={update} saving={saving} onSave={() => save("payments")} onPix={() => setModal({ type:"pix" })}/>} 
       {tab === "policies" && <PoliciesSection form={form} data={data} update={update} saving={saving} onSave={() => save("policies")}/>} 
       {tab === "communication" && <CommunicationSection form={form} setForm={setForm} setDirty={setDirty} selectedTemplate={selectedTemplate} setSelectedTemplate={setSelectedTemplate} saving={saving} save={save}/>} 
       {tab === "site" && <SiteSection form={form} update={update} saving={saving} onSave={() => save("site")}/>} 
-      {tab === "admins" && <AdminsSection data={data} setModal={setModal} onSave={async (id, values, daily = false) => { try { if (daily) await saveAdminDailyPreference(id, values); else await saveAdminPreference(id, values); setMessage("Preferências da administradora atualizadas."); await load(); } catch (e) { setMessage(e.message); } }}/>} 
+      {tab === "admins" && (
+        <AdminsSection data={data} setModal={setModal}/>
+      )}
       {tab === "security" && <SecuritySection user={user} saving={saving} setSaving={setSaving} setMessage={setMessage} setModal={setModal}/>} 
     </main></div>
     {modal && <SettingsModal title={modal.type === "unsaved" ? "Alterações não salvas" : modal.type === "addAdmin" ? "Adicionar administrador" : modal.type === "removeAdmin" ? "Remover administrador" : modal.type === "pix" ? "Alterar dados Pix" : "Sair de todas as sessões"} onClose={() => setModal(null)}>
@@ -96,6 +111,23 @@ export default function AdminSettings() {
       {modal.type === "signout" && <><p>Você precisará entrar novamente em todos os dispositivos.</p><footer><button onClick={() => setModal(null)}>Cancelar</button><button className="primary" onClick={async () => { try { await signOutAllSessions(); } catch { setMessage("Não foi possível encerrar todas as sessões."); setModal(null); } }}>Sair de todas as sessões</button></footer></>}
     </SettingsModal>}
   </section></AdminLayout>;
+}
+
+function AdminAccountSection({ form, update, saving, onSave }) {
+  return <SettingsSection title="Minha conta" subtitle="Este nome pertence somente à administradora autenticada." onSave={onSave} saving={saving}><Grid><Field label="Nome" value={form.account.name} onChange={(value) => update("account", "name", value)}/></Grid><p className="settings-scope-note">E-mail e senha ficam na aba Segurança. Não existe celular administrativo individual na estrutura atual.</p></SettingsSection>;
+}
+
+function AdminPreferencesSection({ values: savedValues, onSave }) {
+  const values = savedValues || { panel_notifications_enabled:true, email_notifications_enabled:false, is_active:true, show_daily_verse:true, daily_summary_email_enabled:false, end_of_day_email_enabled:false, show_closing_message:true };
+  const toggle = (key, value, daily = false) => onSave({ ...values, [key]: value }, daily);
+  return <SettingsSection title="Minhas preferências" subtitle="Estas escolhas afetam somente a sua conta administrativa."><div className="admin-own-preferences">
+    <label><input type="checkbox" checked={values.panel_notifications_enabled} onChange={(event) => toggle("panel_notifications_enabled", event.target.checked)}/> Notificações no painel</label>
+    <label><input type="checkbox" checked={values.email_notifications_enabled} onChange={(event) => toggle("email_notifications_enabled", event.target.checked)}/> Notificações administrativas por e-mail</label>
+    <label><input type="checkbox" checked={values.show_daily_verse} onChange={(event) => toggle("show_daily_verse", event.target.checked, true)}/> Mostrar versículo diário</label>
+    <label><input type="checkbox" checked={values.daily_summary_email_enabled} onChange={(event) => toggle("daily_summary_email_enabled", event.target.checked, true)}/> Receber resumo diário por e-mail</label>
+    <label><input type="checkbox" checked={values.end_of_day_email_enabled} onChange={(event) => toggle("end_of_day_email_enabled", event.target.checked, true)}/> Receber resumo de encerramento</label>
+    <label><input type="checkbox" checked={values.show_closing_message} onChange={(event) => toggle("show_closing_message", event.target.checked, true)}/> Mostrar mensagem de encerramento</label>
+  </div></SettingsSection>;
 }
 
 function ProfileSection({ form, update, saving, onSave }) {
@@ -133,7 +165,7 @@ function ScheduleSection({ form, update, saving, onSave }) { return <SettingsSec
 function PaymentsSection({ form, update, saving, onSave, onPix }) { return <SettingsSection title="Pagamentos e Pix" subtitle="Dados sensíveis nunca são exibidos por completo." onSave={onSave} saving={saving}><div className="secret-status"><CreditCard/><div><strong>Chave Pix</strong><span>{form.payments.pix_configured ? "•••••••••••••••• · Configurada" : "Não configurada"}</span></div><button onClick={onPix}>Alterar dados</button></div><Grid>{[["pix_recipient_name","Nome da recebedora"],["pix_recipient_city","Cidade da recebedora"],["proof_deadline_minutes","Prazo do comprovante (minutos)"],["initial_status","Status inicial"]].map(([key,label]) => <Field key={key} label={label} value={form.payments[key] || ""} onChange={(v) => update("payments",key,v)}/>)}<Field wide textarea label="Mensagem de pagamento" value={form.payments.payment_message || ""} onChange={(v) => update("payments","payment_message",v)}/><Field wide textarea label="Mensagem após envio" value={form.payments.payment_sent_message || ""} onChange={(v) => update("payments","payment_sent_message",v)}/></Grid></SettingsSection>; }
 function CommunicationSection({ form, setForm, setDirty, selectedTemplate, setSelectedTemplate, saving, save }) { const updateNotice=(index,key,value)=>{const list=[...form.notifications];list[index]={...list[index],[key]:value};setForm((x)=>({...x,notifications:list}));setDirty(true)}; return <SettingsSection title="Comunicação e e-mails" subtitle="A tela mostra apenas se cada integração está configurada." onSave={() => save("communication")} saving={saving}><div className="integration-grid">{Object.entries(form.payments.integration_status || {}).map(([key,value]) => <article key={key}><Bell/><strong>{key.replaceAll("_"," ")}</strong><span>{value ? "Configurado ✓" : "Pendente"}</span></article>)}</div><h3>Notificações administrativas</h3><div className="notification-list">{form.notifications.map((n,index) => customerPaymentPreferences.has(n.id) ? null : <article key={n.id}><strong>{notificationLabels[n.id] || n.id}</strong><label><input type="checkbox" checked={n.panel_enabled} onChange={(e)=>updateNotice(index,"panel_enabled",e.target.checked)}/>Painel</label><label><input type="checkbox" checked={n.email_enabled} onChange={(e)=>updateNotice(index,"email_enabled",e.target.checked)}/>E-mail</label><select value={n.priority} onChange={(e)=>updateNotice(index,"priority",e.target.value)}><option value="low">Baixa</option><option value="normal">Normal</option><option value="high">Alta</option></select></article>)}</div><button onClick={() => save("notifications")}>Salvar notificações</button><h3>Modelos de e-mail</h3><select value={selectedTemplate?.id || ""} onChange={(e)=>setSelectedTemplate(form.templates.find((t)=>t.id===e.target.value))}>{form.templates.map((t)=><option key={t.id} value={t.id}>{t.id}</option>)}</select>{selectedTemplate && <Grid><Field label="Assunto" value={selectedTemplate.subject} onChange={(v)=>{setSelectedTemplate({...selectedTemplate,subject:v});setDirty(true)}}/><Field label="Título" value={selectedTemplate.title} onChange={(v)=>{setSelectedTemplate({...selectedTemplate,title:v});setDirty(true)}}/><Field wide textarea label="Texto principal" value={selectedTemplate.body} onChange={(v)=>{setSelectedTemplate({...selectedTemplate,body:v});setDirty(true)}}/><Field wide label="Assinatura" value={selectedTemplate.signature} onChange={(v)=>{setSelectedTemplate({...selectedTemplate,signature:v});setDirty(true)}}/></Grid>}</SettingsSection>; }
 function SiteSection({ form, update, saving, onSave }) { return <SettingsSection title="Site" subtitle="Edite textos sem alterar as rotas técnicas." onSave={onSave} saving={saving}><Grid>{[["home_title","Título da Home"],["home_subtitle","Subtítulo"],["primary_button","Botão principal"],["gallery_button","Botão da Galeria"],["instagram_call","Chamada do Instagram"],["contact_text","Texto de Contato"]].map(([key,label])=><Field key={key} label={label} value={form.site[key] || ""} onChange={(v)=>update("site",key,v)}/>)}</Grid><div className="settings-shortcuts"><Link to="/admin/galeria">Gerenciar Galeria</Link><Link to="/admin/servicos">Gerenciar Serviços</Link><Link to="/admin/promocoes">Gerenciar Promoções</Link></div></SettingsSection>; }
-function AdminsSection({ data, setModal, onSave }) { return <SettingsSection title="Administradores" subtitle="As administradoras possuem as mesmas permissões; as preferências controlam somente notificações."><button className="primary" onClick={()=>setModal({type:"addAdmin"})}>Adicionar administrador</button><div className="admin-list">{data.admins.map((a)=>{const saved=data.admin_preferences?.find((p)=>p.admin_user_id===a.id);const values=saved||{panel_notifications_enabled:true,email_notifications_enabled:false,is_active:true,show_daily_verse:true,daily_summary_email_enabled:false,end_of_day_email_enabled:false,show_closing_message:true};const toggle=(key,value,daily=false)=>onSave(a.id,{...values,[key]:value},daily);return <article key={a.id}><span>{(a.name || "A").slice(0,2).toUpperCase()}</span><div><strong>{a.name}</strong><p>{a.email}</p><small>Criado em {new Date(a.created_at).toLocaleDateString("pt-BR")}</small><label><input type="checkbox" defaultChecked={values.panel_notifications_enabled} onChange={(e)=>toggle("panel_notifications_enabled",e.target.checked)}/> Notificações no painel</label><label><input type="checkbox" defaultChecked={values.email_notifications_enabled} onChange={(e)=>toggle("email_notifications_enabled",e.target.checked)}/> Notificações por e-mail</label><label><input type="checkbox" defaultChecked={values.show_daily_verse} onChange={(e)=>toggle("show_daily_verse",e.target.checked,true)}/> Mostrar versículo no Dashboard</label><label><input type="checkbox" defaultChecked={values.daily_summary_email_enabled} onChange={(e)=>toggle("daily_summary_email_enabled",e.target.checked,true)}/> Receber resumo diário por e-mail</label><label><input type="checkbox" defaultChecked={values.end_of_day_email_enabled} onChange={(e)=>toggle("end_of_day_email_enabled",e.target.checked,true)}/> Receber resumo de encerramento</label><label><input type="checkbox" defaultChecked={values.show_closing_message} onChange={(e)=>toggle("show_closing_message",e.target.checked,true)}/> Mostrar mensagem de encerramento</label></div><em>{values.is_active?"Administrador ativo":"Inativo"}</em><button onClick={()=>setModal({type:"removeAdmin",admin:a})}>Remover função</button></article>})}</div></SettingsSection>; }
+function AdminsSection({ data, setModal }) { return <SettingsSection title="Administradores" subtitle="Gerencie somente o acesso administrativo. Cada administradora controla as próprias preferências em sua conta."><button className="primary" onClick={()=>setModal({type:"addAdmin"})}>Adicionar administrador</button><div className="admin-list">{data.admins.map((admin)=><article key={admin.id}><span>{(admin.name || "A").slice(0,2).toUpperCase()}</span><div><strong>{admin.name}</strong><p>{admin.email}</p><small>Criado em {new Date(admin.created_at).toLocaleDateString("pt-BR")}</small></div><em>Administrador ativo</em><button onClick={()=>setModal({type:"removeAdmin",admin})}>Remover função</button></article>)}</div></SettingsSection>; }
 
 function SettingsSection({title,subtitle,onSave,saving,children}) { return <section className="settings-section"><header><h2>{title}</h2><p>{subtitle}</p></header>{children}{onSave && <footer><button className="primary" disabled={saving} onClick={onSave}>{saving ? "Salvando..." : "Salvar alterações"}</button></footer>}</section>; }
 function Grid({children}) { return <div className="settings-grid">{children}</div>; }

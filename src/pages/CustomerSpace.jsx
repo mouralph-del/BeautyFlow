@@ -7,7 +7,7 @@ import RescheduleRequest from "../components/CustomerSpace/RescheduleRequest";
 import { useAuth } from "../contexts/useAuth";
 import useCustomerSpaceData from "../hooks/useCustomerSpaceData";
 import Layout from "../layouts/Layout";
-import { appointmentGroup, isCompletedAppointment, toAppointmentDate } from "../utils/customerAppointments";
+import { getNextAppointment, isCompletedAppointment, toAppointmentDate } from "../utils/customerAppointments";
 import "./CustomerSpace.css";
 import { SkeletonCard } from "../components/Skeleton";
 import ErrorMessage from "../components/Error/ErrorMessage";
@@ -20,7 +20,7 @@ export default function CustomerSpace() {
   const [historyIndex, setHistoryIndex] = useState(0);
   const firstName = user?.user_metadata?.name?.trim().split(/\s+/)[0] || user?.email?.split("@")[0] || "Cliente";
   const history = useMemo(() => appointments.filter(isCompletedAppointment).sort((a,b)=>toAppointmentDate(b)-toAppointmentDate(a)), [appointments]);
-  const nextAppointment = useMemo(() => appointments.filter((item) => appointmentGroup(item) === "proximos").sort((a, b) => toAppointmentDate(a) - toAppointmentDate(b))[0], [appointments]);
+  const nextAppointment = useMemo(() => getNextAppointment(appointments), [appointments]);
   const currentHistory = history[Math.min(historyIndex, Math.max(history.length - 1, 0))];
 
   return (

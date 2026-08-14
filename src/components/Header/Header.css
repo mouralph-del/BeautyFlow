@@ -223,8 +223,15 @@ z-index: 1000;
   }
 
   .header-brand__logo-frame {
-    width: 122px;
-    height: 62px;
+    width: 126px;
+    height: 68px;
+  }
+
+  .header-brand__logo {
+    --brand-logo-width: 126px;
+    --brand-mark-size: 34px;
+    --brand-name-size: 12px;
+    --brand-studio-size: 6px;
   }
 
   .header-auth-actions,
@@ -241,11 +248,14 @@ z-index: 1000;
   .header__mobile-auth a{justify-content:center;border:1px solid #dcc7b8}
   .header__mobile-auth .header-signup{border-color:#9a6543;background:#9a6543;color:#fff}
   .header-menu-backdrop{position:fixed;inset:0;z-index:999;display:block;border:0;background:rgba(45,32,26,.4)}
+  .header--customer .header__nav{display:none}
   .customer-drawer{width:min(390px,calc(100vw - 18px));padding:30px 20px 24px}
+  .customer-drawer nav{min-height:0;flex:1;align-content:start;overflow-y:auto;-webkit-overflow-scrolling:touch}
 }
 
 @media (max-width: 360px) {
-  .header-brand__logo-frame{width:112px;height:58px}
+  .header-brand__logo-frame{width:116px;height:64px}
+  .header-brand__logo{--brand-logo-width:116px;--brand-mark-size:32px;--brand-name-size:11px;--brand-studio-size:5.5px}
   .header-avatar{width:34px;height:34px}
 }
 

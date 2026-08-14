@@ -7,6 +7,7 @@ const worker = readFileSync("supabase/functions/_shared/email.ts", "utf8");
 const legacyEndpoint = readFileSync("supabase/functions/notify-payment-status/index.ts", "utf8");
 const settings = readFileSync("src/pages/AdminSettings.jsx", "utf8");
 const addressTests = readFileSync("tests/email/payment-confirmed-address.test.js", "utf8");
+const adminRecipients = readFileSync("supabase/migrations/20260804410000_fix_admin_email_recipients.sql", "utf8");
 
 test("aprovação usa preferência transacional própria, sem depender de payment_proof", () => {
   assert.match(migration, /'payment_confirmed', true, 'high'/);
@@ -47,4 +48,16 @@ test("endereço confirmado continua opcional e restrito à aprovação", () => {
 
 test("nenhuma automação não relacionada é alterada pela migration", () => {
   assert.doesNotMatch(migration, /promotion|reminder_24h|daily_summary|holiday|no_show/);
+});
+
+test("aviso de comprovante resolve apenas administradoras individualmente elegíveis", () => {
+  assert.match(worker, /get_admin_email_recipients/);
+  assert.match(adminRecipients, /where p\.is_active and p\.email_notifications_enabled/);
+  assert.doesNotMatch(adminRecipients, /update public\.admin_notification_preferences/);
+});
+
+test("evento administrativo continua idempotente e separado do cliente", () => {
+  assert.equal((migration.match(/'admin-payment-review:'\|\|new\.id/g) || []).length, 1);
+  assert.equal((migration.match(/'payment-review:'\|\|new\.id/g) || []).length, 1);
+  assert.match(worker, /job\.metadata\?\.requires_admin_email/);
 });

@@ -73,4 +73,5 @@ export const saveAdminPreference = async (adminUserId, values) => { const { erro
 export const saveAdminDailyPreference = async (adminUserId, values) => { const { error } = await supabase.rpc("admin_save_daily_preferences", { target_admin: adminUserId, show_verse: values.show_daily_verse, daily_email: values.daily_summary_email_enabled, end_email: values.end_of_day_email_enabled, show_closing: values.show_closing_message }); if (error) throw error; };
 export const updatePassword = async (password) => { const { error } = await supabase.auth.updateUser({ password }); if (error) throw error; };
 export const updateAccountEmail = async (email) => { const { error } = await supabase.auth.updateUser({ email: email.trim() }); if (error) throw error; };
+export const updateAdminProfile = async ({ name }) => { const { error } = await supabase.auth.updateUser({ data: { name: name.trim() } }); if (error) throw error; };
 export const signOutAllSessions = async () => { const { error } = await supabase.auth.signOut({ scope: "global" }); if (error) throw error; };

@@ -26,3 +26,16 @@ test("entrada fitPayment preserva data, horário e valores próprios", () => {
   for (const key of ["totalDuration", "totalPrice", "reservationAmount", "remainingAmount"]) assert.match(booking, new RegExp(`fitPayment\\?\\.${key}`));
 });
 
+test("encaixe sem autenticação redireciona para login preservando o retorno", () => {
+  assert.match(booking, /const handleOpenFitRequest = \(\) => \{[\s\S]*if \(!user\)[\s\S]*navigate\("\/entrar", \{[\s\S]*from: `\$\{location\.pathname\}\$\{location\.search\}\$\{location\.hash\}`/);
+});
+
+test("os dois acessos ao encaixe usam a mesma guarda de autenticação", () => {
+  assert.match(booking, /slot\.status === "approval"[\s\S]*handleOpenFitRequest\(\)/);
+  assert.match(booking, /onRequestFit=\{handleOpenFitRequest\}/);
+});
+
+test("agendamento normal sem autenticação permanece disponível", () => {
+  assert.match(booking, /bookingType === "request" \? handleBookingRequest\(\) : setStep\(4\)/);
+  assert.doesNotMatch(booking, /if \(!user\)[\s\S]{0,250}setStep\(4\)/);
+});

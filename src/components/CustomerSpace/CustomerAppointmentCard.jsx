@@ -1,6 +1,6 @@
 import { CalendarDays, Clock3, Hourglass, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
-import { appointmentStatusLabel, formatAppointmentDate, formatCurrency, getAppointmentImage, normalizeStatus } from "../../utils/customerAppointments";
+import { appointmentStatusLabel, formatAppointmentDate, formatCurrency, getAppointmentImage, getAppointmentValue, normalizeStatus } from "../../utils/customerAppointments";
 import ImageWithFallback from "../Image/ImageWithFallback";
 
 const serviceNames = (appointment) => {
@@ -24,7 +24,7 @@ export default function CustomerAppointmentCard({ appointment, featured = false,
           <span><Clock3 size={15} /> {appointment.time}</span>
           {appointment.durationMinutes && <span><Hourglass size={15} /> {appointment.durationMinutes} minutos</span>}
         </div>
-        <strong>{formatCurrency(appointment.value)}</strong>
+        <strong>{formatCurrency(getAppointmentValue(appointment))}</strong>
         {normalizeStatus(appointment.status)==="nao_compareceu"&&<p className="customer-appointment-card__notice">Este atendimento foi registrado como não comparecimento.</p>}
         {showActions && <div className="customer-appointment-card__actions"><Link to={`/minha-conta/agendamentos/${appointment.id}`}>Ver detalhes e opções</Link></div>}
       </div>

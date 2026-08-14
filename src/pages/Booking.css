@@ -1002,6 +1002,11 @@
 }
 
 @media (max-width: 760px) {
+  .booking__customer input,
+  .booking__customer textarea {
+    font-size: 16px;
+  }
+
   .selected-services__header,
   .additional-services__header {
     align-items: stretch;

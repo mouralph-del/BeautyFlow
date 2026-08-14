@@ -350,6 +350,19 @@ function Booking() {
     }));
   };
 
+  const handleOpenFitRequest = () => {
+    if (!user) {
+      navigate("/entrar", {
+        state: {
+          from: `${location.pathname}${location.search}${location.hash}`,
+        },
+      });
+      return;
+    }
+
+    openRequestModal();
+  };
+
   /*
    * Contratos mantidos para os testes de caracterização anteriores à extração:
    * return Boolean(daySettings?.active) && Boolean(release) && !(release.blocked_dates ?? []).includes(dateValue)
@@ -561,7 +574,7 @@ function Booking() {
           </button>
         )}
 
-        {step !== 5 && (
+        {step < 3 && (
           <BookingServiceSummary service={service} />
         )}
 
@@ -622,10 +635,10 @@ function Booking() {
                   }
 
                   if (slot.status === "approval") {
-                    openRequestModal();
+                    handleOpenFitRequest();
                   }
                 }}
-                onRequestFit={openRequestModal}
+                onRequestFit={handleOpenFitRequest}
               />
             )}
           </>

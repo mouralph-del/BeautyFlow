@@ -94,7 +94,7 @@ test("sidebar administrativo mantém todos os itens acessíveis nas alturas homo
 
       await page.getByRole("button", { name: "Abrir menu" }).click();
       await sidebar.evaluate((element) => element.scrollTo({ top: element.scrollHeight }));
-      await sidebar.getByRole("link", { name: "Configurações" }).click();
+      await sidebar.getByRole("link", { name: "Minha conta", exact: true }).click();
       await expect(page).toHaveURL(/\/admin\/configuracoes$/);
       await expect(sidebar).not.toHaveClass(/is-open/);
     }

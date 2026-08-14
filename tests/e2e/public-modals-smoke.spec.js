@@ -14,60 +14,6 @@ const ensureScreenshots = () => {
   fs.mkdirSync(screenshotRoot, { recursive: true });
 };
 
-const clickOpenModal = async (page) => {
-  let openButton = page.getByRole("button", { name: /Não encontrei um horário/i }).first();
-  if (!(await openButton.count())) {
-    openButton = page.locator("button", { hasText: "Solicitar encaixe" }).first();
-  }
-  await expect(openButton).toBeVisible({ timeout: 10000 });
-  await openButton.focus();
-  await openButton.click();
-  return openButton;
-};
-
-const validateFitRequestModal = async (page, label) => {
-  const dialog = page.getByRole("dialog", { name: /Solicitação de encaixe/i });
-  await expect(dialog).toBeVisible({ timeout: 10000 });
-  await expect(dialog).toHaveAttribute("aria-modal", "true");
-  await expect(dialog).toHaveAttribute("aria-labelledby");
-  await expect(dialog).toHaveAttribute("aria-describedby");
-
-  await expect.poll(() => page.evaluate(() =>
-    document.activeElement?.closest("[role=dialog]") !== null
-  )).toBe(true);
-
-  await page.keyboard.press("Tab");
-  expect(
-    await page.evaluate(() =>
-      document.activeElement?.closest("[role=dialog]") !== null
-    )
-  ).toBe(true);
-
-  await page.keyboard.down("Shift");
-  await page.keyboard.press("Tab");
-  await page.keyboard.up("Shift");
-  expect(
-    await page.evaluate(() =>
-      document.activeElement?.closest("[role=dialog]") !== null
-    )
-  ).toBe(true);
-
-  await page.screenshot({
-    path: `${screenshotRoot}/fit-request-modal-${label}.png`,
-    fullPage: true,
-  });
-};
-
-const closeModalByOverlay = async (page) => {
-  const overlay = page.locator(".bf-modal-overlay");
-  await expect(overlay).toBeVisible();
-  const box = await overlay.boundingBox();
-  if (!box) {
-    throw new Error("Overlay bounding box not found");
-  }
-  await page.mouse.click(box.x + 10, box.y + 10);
-};
-
 const noHorizontalScroll = async (page) => {
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth
@@ -83,7 +29,7 @@ test.describe("Smoke test public modals", () => {
   });
 
   for (const viewport of viewports) {
-    test(`Booking page + FitRequestModal ${viewport.label}`, async ({ page }, testInfo) => {
+    test(`Booking público direciona encaixe ao login ${viewport.label}`, async ({ page }, testInfo) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await page.goto("/agendamento/1");
       await expect(page.getByRole("heading", { name: /Agendamento/i })).toBeVisible({ timeout: 20000 });
@@ -106,20 +52,13 @@ test.describe("Smoke test public modals", () => {
         fullPage: true,
       });
 
-      const openButton = await clickOpenModal(page);
-      const triggerText = await openButton.textContent();
-      await validateFitRequestModal(page, screenLabel(testInfo.project.name, viewport.label));
-
-      await closeModalByOverlay(page);
-      await expect(page.getByRole("dialog", { name: /Solicitação de encaixe/i })).toBeHidden();
-      await expect(page.evaluate(() => document.activeElement?.textContent)).resolves.toContain(triggerText?.trim() ?? "");
-
+      const openButton = page.getByRole("button", { name: /Não encontrei um horário/i }).first();
       await openButton.click();
-      await expect(page.getByRole("dialog", { name: /Solicitação de encaixe/i })).toBeVisible();
-      await page.keyboard.press("Escape");
-      await expect(page.getByRole("dialog", { name: /Solicitação de encaixe/i })).toBeHidden();
+      await expect(page).toHaveURL(/\/entrar$/);
+      await expect(page.getByRole("heading", { name: /Que bom ter você aqui/i })).toBeVisible();
+      await noHorizontalScroll(page);
       await page.screenshot({
-        path: `${screenshotRoot}/${screenLabel(testInfo.project.name, viewport.label)}-fit-request-closed.png`,
+        path: `${screenshotRoot}/${screenLabel(testInfo.project.name, viewport.label)}-fit-request-login.png`,
         fullPage: true,
       });
     });

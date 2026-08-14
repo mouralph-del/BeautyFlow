@@ -20,6 +20,7 @@ const createPayment = () => createPixPayment({ amount: TEST_AMOUNT, transactionI
 
 test("gera BR Code Pix com chave, titular, cidade, valor e TXID configurados", async () => {
   const payment = await createPayment();
+  assert.equal(payment.pixKey, TEST_CONFIG.key);
   assert.ok(payment.pixCopyCode.startsWith("000201"));
   assert.equal(payment.amount, TEST_AMOUNT);
   assert.ok(hasValidPixCrc(payment.pixCopyCode));
@@ -34,6 +35,13 @@ test("gera BR Code Pix com chave, titular, cidade, valor e TXID configurados", a
   assert.equal(fields.get("60"), TEST_CONFIG.receiverCity);
   assert.equal(additional.get("05"), "TESTE-123");
   assert.match(maskPixKey(merchant.get("01")), /^\*+4000$/);
+});
+
+test("retorna a chave separada do payload EMV usado no QR", async () => {
+  const payment = await createPayment();
+  assert.equal(payment.pixKey, TEST_CONFIG.key);
+  assert.notEqual(payment.pixKey, payment.pixCopyCode);
+  assert.ok(payment.pixCopyCode.startsWith("000201"));
 });
 
 test("QR Code decodifica exatamente para o Pix Copia e Cola", async () => {

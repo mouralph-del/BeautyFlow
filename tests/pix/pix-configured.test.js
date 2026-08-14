@@ -22,6 +22,7 @@ test("configuração local gera payload e QR coerentes sem revelar a chave", asy
   if (!config.key || !config.receiverName || !config.receiverCity) { context.skip("Configuração Pix local incompleta"); return; }
 
   const payment = await createPixPayment({ amount: 37.5, transactionId: "VALIDACAO", config });
+  assert.equal(payment.pixKey, config.key);
   const fields = parsePixFields(payment.pixCopyCode.slice(0, -8));
   const merchant = parsePixFields(fields.get("26"));
   assert.ok(merchant.get("01") === config.key, "A chave no campo Pix deve ser exatamente a configurada");

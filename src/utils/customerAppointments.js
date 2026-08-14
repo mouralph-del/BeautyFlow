@@ -2,10 +2,30 @@
 const designImage = "/assets/gallery/design-com-henna.jpg";
 const microbladingImage = "/assets/gallery/microblading.jpg";
 export { appointmentGroup, getAppointmentActions, isActiveAppointment, isCompletedAppointment, normalizeStatus } from "./appointmentStatus.js";
-import { normalizeStatus } from "./appointmentStatus.js";
+import { appointmentGroup, normalizeStatus } from "./appointmentStatus.js";
 
 export const toAppointmentDate = (appointment) =>
   new Date(`${appointment.date}T${appointment.time || "00:00"}`);
+
+export const getAppointmentValue = (appointment) => {
+  const persistedValue = Number(appointment?.value);
+  if (persistedValue > 0) return persistedValue;
+
+  return (appointment?.services ?? []).reduce(
+    (total, service) => total + Number(service.price ?? service.service_price ?? 0),
+    0
+  );
+};
+
+export const getNextAppointment = (appointments, now = new Date()) =>
+  appointments
+    .filter((appointment) => {
+      const appointmentDate = toAppointmentDate(appointment);
+      return appointmentGroup(appointment) === "proximos"
+        && Number.isFinite(appointmentDate.getTime())
+        && appointmentDate >= now;
+    })
+    .sort((left, right) => toAppointmentDate(left) - toAppointmentDate(right))[0];
 
 export const formatAppointmentDate = (date) =>
   new Date(`${date}T12:00:00`).toLocaleDateString("pt-BR");

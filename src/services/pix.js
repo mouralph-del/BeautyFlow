@@ -112,6 +112,7 @@ export const createPixPayment = async ({
   });
 
   return {
+    pixKey: config.key,
     pixCopyCode,
     qrCodeDataUrl,
     amount: numericAmount,

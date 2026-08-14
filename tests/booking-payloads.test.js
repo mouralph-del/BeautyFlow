@@ -52,6 +52,15 @@ test("PaymentStep bloqueia clique duplicado enquanto envia", () => {
   assert.match(payment, /setIsSending\(true\)/);
 });
 
+test("PaymentStep copia somente a chave Pix e mantém o payload fora da interface", () => {
+  const payment = readFileSync("src/components/booking/PaymentStep.jsx", "utf8");
+  assert.match(payment, /navigator\.clipboard\.writeText\(pixPayment\.pixKey\)/);
+  assert.match(payment, /Copiar chave Pix/);
+  assert.match(payment, /Chave Pix copiada/);
+  assert.doesNotMatch(payment, /Pix Copia e Cola/);
+  assert.doesNotMatch(payment, /value=\{pixPayment\?\.pixCopyCode/);
+});
+
 const deferred = () => {
   let resolve;
   let reject;

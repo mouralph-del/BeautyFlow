@@ -63,12 +63,12 @@ function PaymentStep({
   };
 
   const handleCopyPix = async () => {
-    if (!pixPayment?.pixCopyCode) {
+    if (!pixPayment?.pixKey) {
       return;
     }
 
     try {
-      await navigator.clipboard.writeText(pixPayment.pixCopyCode);
+      await navigator.clipboard.writeText(pixPayment.pixKey);
 
       setCopied(true);
 
@@ -168,7 +168,7 @@ function PaymentStep({
           <h3>Pagamento via Pix</h3>
 
           <p className="pix-description">
-            Escaneie o QR Code ou copie o código Pix para realizar o pagamento
+            Escaneie o QR Code ou copie a chave Pix para realizar o pagamento
             da reserva.
           </p>
 
@@ -188,25 +188,13 @@ function PaymentStep({
             onClick={handleCopyPix}
             disabled={!pixPayment}
           >
-            {copied ? "Código copiado com sucesso" : "Copiar código Pix"}
+            {copied ? "Chave Pix copiada" : "Copiar chave Pix"}
           </button>
 
           <p className="payment-instruction">
             Após realizar o pagamento, envie o comprovante para concluir sua
             solicitação de agendamento.
           </p>
-
-          <div className="pix-code pix-code--visible">
-            <label htmlFor="pix-copy-code">
-              Pix Copia e Cola
-            </label>
-
-            <textarea
-              id="pix-copy-code"
-              readOnly
-              value={pixPayment?.pixCopyCode ?? ""}
-            />
-          </div>
 
           <div className="upload-area">
             <label htmlFor="payment-proof" className="upload-box">
