@@ -229,7 +229,7 @@
 .hero-photo__shape {
   display: block;
   width: 100%;
-  height: clamp(540px, 44vw, 620px);
+  height: clamp(640px, 50vw, 760px);
 }
 
 .hero-photo__accent {
@@ -259,7 +259,7 @@
   }
 
   .hero-photo__shape {
-    height: clamp(430px, 78vw, 560px);
+    height: clamp(500px, 86vw, 620px);
   }
 }
 
@@ -274,7 +274,7 @@
   .hero-eyebrow { margin-bottom:14px; font-size:11px; line-height:1.55; }
   .hero-content h1 { font-size:36px; line-height:1.1; letter-spacing:-1px; }
   .hero-description { margin-top:16px; font-size:15px; line-height:1.65; }
-  .hero-photo__shape { height:min(112vw, 460px); }
+  .hero-photo__shape { height:min(128vw, 520px); }
   .hero-actions {
     display:grid;
     width:100%;
