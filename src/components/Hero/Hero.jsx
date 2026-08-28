@@ -7,6 +7,8 @@ function Hero() {
   const navigate = useNavigate();
   const { studio } = usePublicSettings();
   const site = studio.site;
+  const useEditorialTitle =
+    site.home_title === "Um momento especial come\u00e7a aqui";
 
   return (
     <section className="home-hero">
@@ -15,7 +17,20 @@ function Hero() {
           SOBRANCELHAS • CÍLIOS • CUIDADOS FACIAIS
         </span>
 
-        <h1>{site.home_title}</h1>
+        <h1 aria-label={site.home_title}>
+          {useEditorialTitle ? (
+            <>
+              <span aria-hidden="true" className="hero-title-line">
+                Um momento
+              </span>
+              <span aria-hidden="true" className="hero-title-line">
+                especial come&ccedil;a aqui
+              </span>
+            </>
+          ) : (
+            site.home_title
+          )}
+        </h1>
 
         <p className="hero-description">
           Procedimentos realizados com técnica, delicadeza e atenção a cada

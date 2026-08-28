@@ -120,9 +120,9 @@
   margin: 0 auto;
   padding: 52px 0 54px;
   display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(560px, 1.18fr);
+  grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
   align-items: center;
-  gap: 8px;
+  gap: 0;
   overflow: hidden;
   isolation: isolate;
 }
@@ -133,7 +133,8 @@
 
 .hero-content {
   width: 100%;
-  max-width: 620px;
+  max-width: 650px;
+  padding-left: 44px;
 
   display: flex;
   flex-direction: column;
@@ -142,43 +143,46 @@
 
 .hero-eyebrow {
   display: block;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 
   color: #b47f5a;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 1.4px;
+  letter-spacing: 1.6px;
 }
 
 .hero-content h1 {
-  max-width: 720px;
+  max-width: 650px;
   margin: 0;
 
   color: #32251f;
-  font-size: clamp(42px, 4.2vw, 64px);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(44px, 3.72vw, 58px);
   font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: -1.5px;
+  line-height: 1.02;
+  letter-spacing: -1px;
 }
 
-.hero-content h1 span {
-  color: #b98259;
+.hero-title-line {
+  display: block;
+  color: inherit;
 }
 
 .hero-description {
-  max-width: 520px;
-  margin: 20px 0 0;
+  max-width: 500px;
+  margin: 22px 0 0;
 
   color: #75675f;
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.65;
 }
 
 .hero-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 28px;
+  gap: 14px;
+  margin-top: 24px;
 }
 
 .hero-primary-button,
@@ -218,11 +222,11 @@
 .hero-photo {
   position: relative;
   justify-self: end;
-  width: min(720px, 100%);
+  width: min(960px, calc(100% + 180px));
   min-width: 0;
   margin: 0;
   overflow: hidden;
-  transform: translateX(28px);
+  transform: translateX(64px);
   z-index: 1;
 }
 
@@ -250,6 +254,7 @@
 
   .hero-content {
     width: 100%;
+    padding-left: 0;
   }
 
   .hero-photo {
@@ -272,7 +277,7 @@
 @media (max-width: 560px) {
   .home-hero { padding: 38px 16px 34px; }
   .hero-eyebrow { margin-bottom:14px; font-size:11px; line-height:1.55; }
-  .hero-content h1 { font-size:36px; line-height:1.1; letter-spacing:-1px; }
+  .hero-content h1 { font-size:38px; line-height:1.06; letter-spacing:-.6px; }
   .hero-description { margin-top:16px; font-size:15px; line-height:1.65; }
   .hero-photo__shape { height:min(128vw, 520px); }
   .hero-actions {
