@@ -3,6 +3,7 @@ import colorimetryCertificate from "../assets/certificates/colorimetria-sobrance
 import masterclassCertificate from "../assets/certificates/masterclass-micropigmentacao-2020.jpeg";
 import microbladingCertificate from "../assets/certificates/microblading-fio-a-fio-2023.jpeg";
 import perfectClassicCertificate from "../assets/certificates/perfect-classic-2d-2026.jpeg";
+import thaisStoryPhoto from "../assets/images/thais-servicos-trajetoria.jpeg";
 import Layout from "../layouts/Layout";
 import "./MyStory.css";
 
@@ -69,6 +70,10 @@ function MyStory() {
         <section className="story-hero">
           <div className="story-portrait">
             <span aria-hidden="true" />
+            <img
+              src={thaisStoryPhoto}
+              alt="Thaís Santos sentada no estúdio"
+            />
           </div>
 
           <div className="story-introduction">

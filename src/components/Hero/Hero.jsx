@@ -1,6 +1,7 @@
 import "./Hero.css";
 import { useNavigate } from "react-router-dom";
 import usePublicSettings from "../../hooks/usePublicSettings";
+import thaisHeroPhoto from "../../assets/images/thais-servicos-capa.jpeg";
 
 function Hero() {
   const navigate = useNavigate();
@@ -39,6 +40,13 @@ function Hero() {
           </button>
         </div>
       </div>
+
+      <figure className="hero-photo" aria-label="Thaís Santos Beauty Studio">
+        <img
+          src={thaisHeroPhoto}
+          alt="Thaís Santos em retrato profissional"
+        />
+      </figure>
 
     </section>
   );

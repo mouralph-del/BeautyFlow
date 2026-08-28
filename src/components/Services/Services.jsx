@@ -2,8 +2,6 @@ import "./Services.css";
 
 import ServiceCard from "../ServiceCard/ServiceCard";
 import useServiceCatalog from "../../hooks/useServiceCatalog";
-import thaisServicesCover from "../../assets/images/thais-servicos-capa.jpeg";
-import thaisServicesTrajectory from "../../assets/images/thais-servicos-trajetoria.jpeg";
 
 function Services() {
   const services = useServiceCatalog();
@@ -16,24 +14,6 @@ function Services() {
           Procedimentos pensados para realçar sua beleza com cuidado e
           naturalidade.
         </p>
-      </div>
-
-      <div className="home-services-showcase" aria-label="Thaís Santos Beauty Studio">
-        <figure className="home-services-photo home-services-photo--cover">
-          <img
-            src={thaisServicesCover}
-            alt="Thaís Santos em retrato profissional"
-            loading="lazy"
-          />
-        </figure>
-
-        <figure className="home-services-photo home-services-photo--trajectory">
-          <img
-            src={thaisServicesTrajectory}
-            alt="Thaís Santos no estúdio"
-            loading="lazy"
-          />
-        </figure>
       </div>
 
       <div className="services__grid">
