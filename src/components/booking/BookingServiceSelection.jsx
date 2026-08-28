@@ -5,6 +5,7 @@ function BookingServiceSelection({
   deposit,
   onRemove,
   onOpenAdditional,
+  children,
 }) {
   return (
     <section className="selected-services">
@@ -66,6 +67,8 @@ function BookingServiceSelection({
           <strong>{deposit}</strong>
         </span>
       </div>
+
+      {children}
     </section>
   );
 }

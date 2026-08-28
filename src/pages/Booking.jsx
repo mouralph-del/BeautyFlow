@@ -591,18 +591,18 @@ function Booking() {
               deposit={formatCurrency(totalDeposit)}
               onRemove={handleRemoveService}
               onOpenAdditional={openServiceSelector}
-            />
-
-            <BookingAdditionalServices
-              open={showServiceSelector}
-              services={additionalServiceViews}
-              formatDuration={formatDuration}
-              onSelect={(availableService) => {
-                handleAddService(availableService);
-                closeServiceSelector();
-              }}
-              onClose={closeServiceSelector}
-            />
+            >
+              <BookingAdditionalServices
+                open={showServiceSelector}
+                services={additionalServiceViews}
+                formatDuration={formatDuration}
+                onSelect={(availableService) => {
+                  handleAddService(availableService);
+                  closeServiceSelector();
+                }}
+                onClose={closeServiceSelector}
+              />
+            </BookingServiceSelection>
 
             <section className="booking__calendar">
               <h2>📅 Escolha uma data</h2>
