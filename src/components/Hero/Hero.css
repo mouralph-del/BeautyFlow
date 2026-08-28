@@ -114,13 +114,28 @@
 }
 
 .home-hero {
-  max-width: 1100px;
+  position: relative;
+  width: min(1200px, calc(100% - 48px));
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 72px 0 50px;
+  padding: 72px 0 56px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 430px);
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 0.9fr);
   align-items: center;
-  gap: 54px;
+  gap: 34px;
+  isolation: isolate;
+}
+
+.home-hero::before {
+  content: "";
+  position: absolute;
+  top: 38px;
+  right: -18px;
+  bottom: 22px;
+  width: min(45vw, 520px);
+  border-radius: 34px;
+  background: linear-gradient(135deg, #efe0d3, #f8f0e8);
+  z-index: -1;
 }
 
 .hero-content {
@@ -208,28 +223,50 @@
 }
 
 .hero-photo {
+  position: relative;
+  justify-self: end;
+  width: min(500px, 100%);
   min-width: 0;
   margin: 0;
   overflow: hidden;
-  border: 1px solid #eadfd5;
-  border-radius: 24px;
+  border: 1px solid rgba(234, 223, 213, 0.8);
+  border-radius: 30px;
   background: #2b2826;
-  box-shadow: 0 24px 52px rgba(62, 42, 32, 0.16);
+  box-shadow: 0 28px 62px rgba(62, 42, 32, 0.18);
+}
+
+.hero-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(250, 247, 242, 0.12), transparent 28%);
+  pointer-events: none;
 }
 
 .hero-photo img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 0.86;
   object-fit: cover;
   object-position: center 30%;
 }
 
 @media (max-width: 850px) {
   .home-hero {
+    width: 100%;
     padding: 48px 24px 44px;
     grid-template-columns: 1fr;
     gap: 28px;
+  }
+
+  .home-hero::before {
+    top: auto;
+    right: 18px;
+    bottom: 24px;
+    left: 18px;
+    width: auto;
+    height: 38%;
+    border-radius: 26px;
   }
 
   .hero-content {
@@ -237,7 +274,7 @@
   }
 
   .hero-photo {
-    width: min(420px, 100%);
+    width: min(470px, 100%);
     justify-self: center;
   }
 }
@@ -250,10 +287,12 @@
 
 @media (max-width: 560px) {
   .home-hero { padding: 38px 16px 34px; }
+  .home-hero::before { left:10px; right:10px; bottom:18px; height:34%; }
   .hero-eyebrow { margin-bottom:14px; font-size:11px; line-height:1.55; }
   .hero-content h1 { font-size:36px; line-height:1.1; letter-spacing:-1px; }
   .hero-description { margin-top:16px; font-size:15px; line-height:1.65; }
-  .hero-photo { border-radius:18px; }
+  .hero-photo { border-radius:20px; }
+  .hero-photo img { aspect-ratio: 0.88; object-position:center 28%; }
   .hero-actions {
     display:grid;
     width:100%;

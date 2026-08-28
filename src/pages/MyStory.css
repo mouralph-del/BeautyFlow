@@ -1,5 +1,5 @@
 .story-page {
-  padding: 64px 24px 90px;
+  padding: 54px 24px 90px;
   background: linear-gradient(180deg, #fffdfb, #faf7f2);
 }
 
@@ -12,34 +12,44 @@
   margin-inline: auto;
 }
 
+.story-hero,
+.journey-grid {
+  width: min(1180px, 100%);
+}
+
 .story-hero {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(380px, 0.98fr) minmax(0, 1fr);
   align-items: center;
-  gap: 68px;
+  gap: 42px;
 }
 
 .story-portrait {
   position: relative;
-  min-height: 552px;
-  padding: 22px 0 0 22px;
+  min-height: 580px;
+  padding: 24px 0 0 24px;
 }
 
 .story-portrait > span {
   position: absolute;
-  inset: 0 32px 32px 0;
-  border-radius: 26px;
-  background: #ead6c8;
+  inset: 0 38px 34px 0;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #ead6c8, #f6ebe3);
 }
 
 .story-portrait img {
   position: relative;
   display: block;
   width: 100%;
-  height: 530px;
+  height: 560px;
   object-fit: cover;
+  object-position: center 38%;
   border-radius: 24px;
-  box-shadow: 0 22px 48px rgba(67, 43, 32, 0.15);
+  box-shadow: 0 26px 56px rgba(67, 43, 32, 0.18);
+}
+
+.story-introduction {
+  max-width: 560px;
 }
 
 .story-introduction > span,
@@ -59,6 +69,10 @@
   line-height: 1.06;
 }
 
+.story-introduction h1 span {
+  color: #9a6543;
+}
+
 .story-introduction blockquote {
   margin: 0 0 22px;
   color: #6d625b;
@@ -76,15 +90,15 @@
 .journey-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 82px;
+  gap: 14px;
+  margin-top: 54px;
 }
 
 .journey-grid article {
   position: relative;
   overflow: hidden;
-  min-height: 255px;
-  padding: 25px 22px;
+  min-height: 230px;
+  padding: 23px 20px;
   border: 1px solid #eadbd0;
   border-radius: 18px;
   background: #fff;
@@ -166,7 +180,7 @@
 
 .story-timeline,
 .story-certificates {
-  margin-top: 96px;
+  margin-top: 82px;
 }
 
 .story-section-heading {
@@ -278,33 +292,53 @@
 
 @media (max-width: 1000px) {
   .story-hero {
-    gap: 38px;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+    gap: 30px;
+  }
+
+  .story-portrait {
+    min-height: 500px;
+  }
+
+  .story-portrait img {
+    height: 478px;
   }
 
   .journey-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 48px;
   }
 
-  .journey-grid article:last-child {
+  .journey-grid article:nth-last-child(-n + 2) {
     grid-column: 1 / -1;
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 840px) {
   .story-page {
     padding: 38px 16px 65px;
   }
 
   .story-hero {
     grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .story-introduction {
+    order: 1;
   }
 
   .story-portrait {
-    min-height: 420px;
+    order: 2;
+    min-height: 430px;
   }
 
   .story-portrait img { height:398px; }
   .story-introduction h1 { font-size:clamp(36px,10vw,48px); }
+
+  .journey-grid {
+    margin-top: 44px;
+  }
 
   .timeline-track {
     grid-template-columns: 1fr;

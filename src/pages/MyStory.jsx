@@ -3,7 +3,7 @@ import colorimetryCertificate from "../assets/certificates/colorimetria-sobrance
 import masterclassCertificate from "../assets/certificates/masterclass-micropigmentacao-2020.jpeg";
 import microbladingCertificate from "../assets/certificates/microblading-fio-a-fio-2023.jpeg";
 import perfectClassicCertificate from "../assets/certificates/perfect-classic-2d-2026.jpeg";
-import thaisStoryPhoto from "../assets/images/thais-servicos-trajetoria.jpeg";
+import thaisStoryPhoto from "../assets/images/thais-minha-historia.jpeg";
 import Layout from "../layouts/Layout";
 import "./MyStory.css";
 
@@ -78,7 +78,7 @@ function MyStory() {
 
           <div className="story-introduction">
             <span>Minha jornada</span>
-            <h1>Uma paixão que se tornou propósito.</h1>
+            <h1>Uma paixão que se tornou <span>propósito.</span></h1>
             <blockquote>
               “Acredito que a verdadeira beleza está nos detalhes e no cuidado
               com cada cliente.”
