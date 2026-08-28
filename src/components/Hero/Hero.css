@@ -222,47 +222,18 @@
   min-width: 0;
   margin: 0;
   overflow: hidden;
-  background: #2b2826;
-  filter: drop-shadow(0 24px 46px rgba(62, 42, 32, 0.12));
   transform: translateX(28px);
   z-index: 1;
 }
 
-.hero-photo::before {
-  content: "";
-  position: absolute;
-  top: -12%;
-  bottom: -12%;
-  left: -11%;
-  width: 36%;
-  background: linear-gradient(180deg, #ead3c2 0%, #f3e5d8 100%);
-  border-radius: 0 58% 48% 0 / 0 46% 54% 0;
-  transform: rotate(8deg);
-  transform-origin: left center;
-  z-index: 1;
-}
-
-.hero-photo::after {
-  content: "";
-  position: absolute;
-  top: -14%;
-  bottom: -14%;
-  left: -18%;
-  width: 35%;
-  background: linear-gradient(135deg, #faf7f2 0%, #f7efe7 58%, #f3e9de 100%);
-  border-radius: 0 60% 48% 0 / 0 46% 54% 0;
-  transform: rotate(8deg);
-  transform-origin: left center;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.hero-photo img {
+.hero-photo__shape {
   display: block;
   width: 100%;
   height: clamp(540px, 44vw, 620px);
-  object-fit: cover;
-  object-position: center 26%;
+}
+
+.hero-photo__accent {
+  fill: #ead3c2;
 }
 
 @media (max-width: 850px) {
@@ -287,19 +258,7 @@
     transform: none;
   }
 
-  .hero-photo::before {
-    left: -13%;
-    width: 32%;
-    transform: rotate(6deg);
-  }
-
-  .hero-photo::after {
-    left: -19%;
-    width: 31%;
-    transform: rotate(6deg);
-  }
-
-  .hero-photo img {
+  .hero-photo__shape {
     height: clamp(430px, 78vw, 560px);
   }
 }
@@ -315,17 +274,7 @@
   .hero-eyebrow { margin-bottom:14px; font-size:11px; line-height:1.55; }
   .hero-content h1 { font-size:36px; line-height:1.1; letter-spacing:-1px; }
   .hero-description { margin-top:16px; font-size:15px; line-height:1.65; }
-  .hero-photo::before {
-    left: -16%;
-    width: 26%;
-    transform: rotate(4deg);
-  }
-  .hero-photo::after {
-    left: -20%;
-    width: 24%;
-    transform: rotate(4deg);
-  }
-  .hero-photo img { height:min(112vw, 460px); object-position:center 28%; }
+  .hero-photo__shape { height:min(112vw, 460px); }
   .hero-actions {
     display:grid;
     width:100%;
