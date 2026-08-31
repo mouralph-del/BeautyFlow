@@ -37,26 +37,9 @@ function Hero() {
           detalhe para proporcionar resultados que combinam com você.
         </p>
 
-        <div className="hero-actions">
-          <button
-            type="button"
-            className="hero-primary-button"
-            onClick={() => navigate("/servicos")}
-          >
-            {site.primary_button}
-          </button>
-
-          <button
-            type="button"
-            className="hero-secondary-button"
-            onClick={() => navigate("/galeria")}
-          >
-            {site.gallery_button}
-          </button>
-        </div>
       </div>
 
-      <figure className="hero-photo" aria-label="Thaís Santos Beauty Studio">
+      <figure className="hero-dark-panel" aria-hidden="true">
         <svg
           className="hero-photo__shape"
           viewBox="0 0 1000 1000"
@@ -67,13 +50,24 @@ function Hero() {
           <title id="hero-photo-title">Thaís Santos em retrato profissional</title>
           <defs>
             <clipPath id="heroPhotoClip" clipPathUnits="userSpaceOnUse">
-              <path d="M 270 0 C 185 180 205 420 145 620 C 92 800 38 930 0 1000 L 1000 1000 L 1000 0 Z" />
+              <path d="M 620 0 C 575 210 535 440 500 650 C 470 800 440 920 415 1000 L 1000 1000 L 1000 0 Z" />
             </clipPath>
+            <radialGradient id="heroDarkPanel" cx="74%" cy="45%" r="82%">
+              <stop offset="0%" stopColor="#232122" />
+              <stop offset="42%" stopColor="#261d1b" />
+              <stop offset="75%" stopColor="#211816" />
+              <stop offset="100%" stopColor="#181211" />
+            </radialGradient>
           </defs>
 
           <path
             className="hero-photo__accent"
-            d="M 232 0 C 145 180 160 420 100 620 C 50 800 8 930 -24 1000 L 28 1000 C 68 930 122 800 174 620 C 235 420 218 180 302 0 Z"
+            d="M 608 0 C 563 210 523 440 488 650 C 458 800 428 920 403 1000 L 415 1000 C 440 920 470 800 500 650 C 535 440 575 210 620 0 Z"
+          />
+
+          <path
+            d="M 620 0 C 575 210 535 440 500 650 C 470 800 440 920 415 1000 L 1000 1000 L 1000 0 Z"
+            fill="url(#heroDarkPanel)"
           />
 
           <foreignObject
@@ -89,6 +83,28 @@ function Hero() {
           </foreignObject>
         </svg>
       </figure>
+
+      <figure className="hero-photo" aria-label="Thaís Santos em retrato profissional">
+        <img className="hero-photo__image" src={thaisHeroPhoto} alt="" />
+      </figure>
+
+      <div className="hero-actions">
+        <button
+          type="button"
+          className="hero-primary-button"
+          onClick={() => navigate("/servicos")}
+        >
+          {site.primary_button}
+        </button>
+
+        <button
+          type="button"
+          className="hero-secondary-button"
+          onClick={() => navigate("/galeria")}
+        >
+          {site.gallery_button}
+        </button>
+      </div>
 
     </section>
   );
