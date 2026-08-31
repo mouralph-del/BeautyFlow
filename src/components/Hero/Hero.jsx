@@ -49,9 +49,6 @@ function Hero() {
         >
           <title id="hero-photo-title">Thaís Santos em retrato profissional</title>
           <defs>
-            <clipPath id="heroPhotoClip" clipPathUnits="userSpaceOnUse">
-              <path d="M 620 0 C 575 210 535 440 500 650 C 470 800 440 920 415 1000 L 1000 1000 L 1000 0 Z" />
-            </clipPath>
             <radialGradient id="heroDarkPanel" cx="74%" cy="45%" r="82%">
               <stop offset="0%" stopColor="#232122" />
               <stop offset="42%" stopColor="#261d1b" />
@@ -69,18 +66,6 @@ function Hero() {
             d="M 620 0 C 575 210 535 440 500 650 C 470 800 440 920 415 1000 L 1000 1000 L 1000 0 Z"
             fill="url(#heroDarkPanel)"
           />
-
-          <foreignObject
-            width="1000"
-            height="1000"
-            clipPath="url(#heroPhotoClip)"
-          >
-            <img
-              className="hero-photo__image"
-              src={thaisHeroPhoto}
-              alt=""
-            />
-          </foreignObject>
         </svg>
       </figure>
 
