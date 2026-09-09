@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /minha-conta
+Disallow: /minha-conta/
+Disallow: /entrar
+Disallow: /login
+Disallow: /cadastro
+Disallow: /recuperar-senha
+Disallow: /nova-senha
+Disallow: /agendamento/
+Disallow: /cancelar-agendamento/
+
+Sitemap: https://www.thaisbeautystudio.com.br/sitemap.xml

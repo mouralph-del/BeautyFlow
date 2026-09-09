@@ -370,8 +370,23 @@
 }
 
 @media (max-width: 480px) {
-  .story-portrait { min-height:372px; padding:14px 0 0 14px; }
-  .story-portrait img { height:358px; }
+  .story-portrait {
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #eadbd0;
+    border-radius: 20px;
+    background: #f6ebe3;
+    box-shadow: 0 16px 36px rgba(67, 43, 32, 0.12);
+  }
+
+  .story-portrait > span { display: none; }
+
+  .story-portrait img {
+    height: clamp(300px, 105vw, 390px);
+    border-radius: inherit;
+    box-shadow: none;
+  }
   .journey-grid {
     grid-template-columns: 1fr;
   }

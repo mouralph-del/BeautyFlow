@@ -265,6 +265,7 @@
     display: block;
     min-height: clamp(450px, 36vw, 520px);
     padding: 0;
+    background: #f3e9de;
   }
 
   .hero-dark-panel {
@@ -296,6 +297,7 @@
     height: clamp(473px, 47.5vw, 634px);
     margin: 0;
     overflow: visible;
+    clip-path: inset(0 0 0 clamp(24px, 3vw, 52px));
     transform: none;
   }
 
@@ -305,6 +307,7 @@
     object-fit: contain;
     object-position: center;
     transform: none;
+    filter: brightness(0.84) contrast(1.04);
     -webkit-mask-image: linear-gradient(
       to right,
       transparent 0%,

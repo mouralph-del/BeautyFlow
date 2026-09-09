@@ -24,6 +24,7 @@ Deno.serve(async (request) => {
       client, recipient: appointment.email, templateId, preferenceId,
       eventKey: `payment-${approved ? "approved" : "rejected"}:${appointmentId}`,
       variables: { customer_name: appointment.customer_name, appointment_date: appointment.appointment_date, appointment_time: String(appointment.appointment_time).slice(0, 5), service_name: appointment.service_name || "atendimento" },
+      recipientType: "customer",
     });
     return jsonResponse(result);
   } catch (error) {

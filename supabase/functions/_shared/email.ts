@@ -27,6 +27,7 @@ export function getEmailEnvironment() {
   return {
     resendApiKey: Deno.env.get("RESEND_API_KEY"),
     emailFrom: Deno.env.get("PAYMENT_EMAIL_FROM"),
+    customerReplyTo: Deno.env.get("CUSTOMER_EMAIL_REPLY_TO")?.trim(),
     adminEmail: Deno.env.get("THAIS_ADMIN_EMAIL"),
     siteUrl: Deno.env.get("SITE_URL"),
   };
@@ -41,6 +42,35 @@ async function secureEqual(left: string, right: string) {
   let difference = leftDigest.length ^ rightDigest.length;
   for (let index = 0; index < leftDigest.length; index += 1) difference |= leftDigest[index] ^ rightDigest[index];
   return difference === 0;
+}
+
+function sanitizeProviderDiagnostic(value: unknown) {
+  return String(value ?? "")
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[e-mail ocultado]")
+    .replace(/(?:re_|Bearer\s+)[A-Za-z0-9_-]{8,}/gi, "[segredo ocultado]")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 240);
+}
+
+async function getResendErrorDiagnostic(response: Response) {
+  const rawBody = await response.text().catch(() => "");
+  let code = "";
+  let message = rawBody;
+
+  try {
+    const payload = JSON.parse(rawBody);
+    if (payload && typeof payload === "object") {
+      const details = payload as Record<string, unknown>;
+      code = sanitizeProviderDiagnostic(details.name || details.type || details.code);
+      message = sanitizeProviderDiagnostic(details.message || details.error || rawBody);
+    }
+  } catch {
+    message = sanitizeProviderDiagnostic(rawBody);
+  }
+
+  const suffix = [code && `código ${code}`, message].filter(Boolean).join(": ");
+  return `Resend HTTP ${response.status}${suffix ? ` (${suffix})` : ""}`;
 }
 
 export async function requireAutomationRequest(request: Request) {
@@ -60,6 +90,7 @@ export async function sendTemplateEmail({
   variables,
   eventKey,
   priority,
+  recipientType,
 }: {
   client: AdminClient;
   recipient: string;
@@ -68,6 +99,7 @@ export async function sendTemplateEmail({
   variables: Record<string, unknown>;
   eventKey: string;
   priority?: string;
+  recipientType: "customer" | "admin";
 }) {
   const environment = getEmailEnvironment();
   const { data: delivered } = await client
@@ -117,16 +149,28 @@ export async function sendTemplateEmail({
     buttonText: renderTemplate(effectiveTemplate.button_text, templateVariables),
     buttonUrl: renderTemplate(effectiveTemplate.button_url, templateVariables),
   });
+  const shouldUseCustomerReplyTo = recipientType === "customer" && Boolean(environment.customerReplyTo);
+  if (recipientType === "customer" && !environment.customerReplyTo) {
+    console.warn("CUSTOMER_EMAIL_REPLY_TO não configurado; e-mail de cliente enviado sem Reply-To.");
+  }
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${environment.resendApiKey}`,
       "Content-Type": "application/json",
       "Idempotency-Key": eventKey.slice(0, 256),
+      "User-Agent": "BeautyFlow/1.0",
     },
-    body: JSON.stringify({ from: environment.emailFrom, to: [recipient], subject, html, headers: { "X-Entity-Ref-ID": eventKey } }),
+    body: JSON.stringify({
+      from: environment.emailFrom,
+      to: [recipient],
+      subject,
+      html,
+      ...(shouldUseCustomerReplyTo ? { reply_to: environment.customerReplyTo } : {}),
+      headers: { "X-Entity-Ref-ID": eventKey },
+    }),
   });
-  if (!response.ok) throw new Error(`Resend indisponível (${response.status}).`);
+  if (!response.ok) throw new Error(await getResendErrorDiagnostic(response));
   const payload = await response.json().catch(() => ({}));
   await client.from("email_delivery_logs").insert({ recipient, template_id: templateId, preference_id: preferenceId, event_key: eventKey, priority: effectivePriority, status: "sent", provider_message_id: payload.id || null, sent_at: new Date().toISOString() });
   return { sent: true, id: payload.id };
@@ -172,6 +216,7 @@ export async function processOutbox(client: AdminClient, worker: string, limit =
           variables,
           eventKey: job.metadata?.kind === "daily_summary" ? `daily-summary:${target.admin_user_id || "fallback"}:${String(job.event_key).replace("daily-summary:", "")}` : job.metadata?.requires_admin_email ? `${job.event_key}:${target.admin_user_id || "fallback"}` : job.event_key,
           priority: job.priority,
+          recipientType: job.metadata?.requires_admin_email ? "admin" : "customer",
         }));
       }
       const sent = deliveries.some((delivery) => delivery.sent);

@@ -17,6 +17,11 @@ test("visitante navega por páginas públicas sem escrita", async ({ page }) => 
   await expect(page.getByRole("button", { name: "Receber e-mail" })).toBeVisible();
 });
 
+test("nova senha abre por acesso direto", async ({ page }) => {
+  await page.goto("/nova-senha");
+  await expect(page.getByRole("heading", { name: "Este link expirou ou é inválido." })).toBeVisible();
+});
+
 test("visitante não acessa painel administrativo", async ({ page }) => {
   await page.goto("/admin");
   await expect(page).toHaveURL(/\/entrar$/);

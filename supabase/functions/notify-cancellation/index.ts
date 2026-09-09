@@ -28,6 +28,7 @@ Deno.serve(async (request) => {
       client, recipient: appointment.email, templateId: "cancellation", preferenceId: "cancellation",
       eventKey: `appointment-cancelled:${appointmentId}`,
       variables: { customer_name: appointment.customer_name, service_name: names, appointment_date: appointment.appointment_date, appointment_time: String(appointment.appointment_time).slice(0, 5) },
+      recipientType: "customer",
     });
     return jsonResponse(result);
   } catch (error) {

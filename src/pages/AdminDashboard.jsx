@@ -19,6 +19,7 @@ import FirstAccessChecklist from "../components/admin/FirstAccessChecklist";
 import Modal from "../components/Modal/Modal";
 import { getAdminDashboardData } from "../services/adminDashboard";
 import { markNotificationRead } from "../services/adminNotifications";
+import { getScheduleReleaseMonths } from "../utils/monthlySchedule";
 import { useAuth } from "../contexts/useAuth";
 import { getAdminFirstName } from "../utils/dailyExperience";
 import services from "../data/services";
@@ -128,10 +129,7 @@ function AdminDashboard() {
     [appointmentFilter, data.appointments]
   );
 
-  const nextMonth = useMemo(
-    () => new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
-    []
-  );
+  const scheduleReleaseMonths = useMemo(() => getScheduleReleaseMonths(), []);
 
   const monthlySummary = useMemo(() => {
     const serviceCounts = {};
@@ -305,7 +303,17 @@ function AdminDashboard() {
         />
       </div>
 
-      <MonthlyScheduleRelease date={nextMonth} reviewSignal={scheduleReviewSignal} />
+      {scheduleReleaseMonths.hasFutureDaysInCurrentMonth && (
+        <MonthlyScheduleRelease
+          date={scheduleReleaseMonths.currentMonth}
+          heading="Agenda do mês atual"
+        />
+      )}
+      <MonthlyScheduleRelease
+        date={scheduleReleaseMonths.nextMonth}
+        heading="Agenda do próximo mês"
+        reviewSignal={scheduleReviewSignal}
+      />
 
       <AdminNotifications
         notifications={data.notifications}

@@ -50,8 +50,8 @@ function Hero() {
           <title id="hero-photo-title">Thaís Santos em retrato profissional</title>
           <defs>
             <radialGradient id="heroDarkPanel" cx="74%" cy="45%" r="82%">
-              <stop offset="0%" stopColor="#232122" />
-              <stop offset="42%" stopColor="#261d1b" />
+              <stop offset="0%" stopColor="#1e1918" />
+              <stop offset="42%" stopColor="#211917" />
               <stop offset="75%" stopColor="#211816" />
               <stop offset="100%" stopColor="#181211" />
             </radialGradient>
@@ -59,7 +59,7 @@ function Hero() {
 
           <path
             className="hero-photo__accent"
-            d="M 608 0 C 563 210 523 440 488 650 C 458 800 428 920 403 1000 L 415 1000 C 440 920 470 800 500 650 C 535 440 575 210 620 0 Z"
+            d="M 608 0 C 563 210 523 440 488 650 C 458 800 428 920 403 1000 L 1000 1000 L 1000 0 Z"
           />
 
           <path

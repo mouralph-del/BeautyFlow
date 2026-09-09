@@ -17,7 +17,7 @@ const monthLabel = (date) =>
 const dateKey = (date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
-function MonthlyScheduleRelease({ date, onChanged, reviewSignal = 0 }) {
+function MonthlyScheduleRelease({ date, heading = "Agenda do próximo mês", onChanged, reviewSignal = 0 }) {
   const { user } = useAuth();
   const [schedule, setSchedule] = useState(null);
   const [blockedDates, setBlockedDates] = useState([]);
@@ -41,8 +41,10 @@ function MonthlyScheduleRelease({ date, onChanged, reviewSignal = 0 }) {
     return result;
   }, [date]);
 
+  const todayKey = dateKey(new Date());
+  const isPastDate = (day) => dateKey(day) < todayKey;
   const availableDays = days.filter(
-    (day) => ![0, 4].includes(day.getDay()) && !blockedDates.includes(dateKey(day))
+    (day) => !isPastDate(day) && ![0, 4].includes(day.getDay()) && !blockedDates.includes(dateKey(day))
   ).length;
 
   useEffect(() => {
@@ -175,7 +177,7 @@ function MonthlyScheduleRelease({ date, onChanged, reviewSignal = 0 }) {
       <div className="admin-section__heading">
         <div>
           <span>PLANEJAMENTO</span>
-          <h2>Agenda do próximo mês</h2>
+          <h2>{heading}</h2>
         </div>
       </div>
 
@@ -234,8 +236,9 @@ function MonthlyScheduleRelease({ date, onChanged, reviewSignal = 0 }) {
                 {getMonthCells(date.getFullYear(),date.getMonth()).map((day,index) => {
                   if (!day) return <span key={`empty-${index}`} />;
                   const closed = [0, 4].includes(day.getDay());
+                  const past = isPastDate(day);
                   const blocked = blockedDates.includes(dateKey(day));
-                  return <button key={dateKey(day)} type="button" disabled={closed} className={blocked ? "blocked" : ""} onClick={() => toggleDate(day)}>{day.getDate()}</button>;
+                  return <button key={dateKey(day)} type="button" disabled={closed || past} className={blocked ? "blocked" : ""} onClick={() => toggleDate(day)}>{day.getDate()}</button>;
                 })}
               </div>
             </div>

@@ -9,7 +9,7 @@
 .customer-tabs button span { display:grid; min-width:20px; height:20px; place-items:center; border-radius:50%; background:rgba(140,92,62,.11); font-size:11px; }
 .customer-appointments-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
 .customer-account-page .customer-appointment-card { overflow:hidden; border:1px solid #eadbd0; border-radius:18px; background:#fff; box-shadow:0 12px 30px rgba(60,40,30,.06); }
-.customer-account-page .customer-appointment-card > img { width:100%; height:180px; object-fit:cover; }
+.customer-account-page .customer-appointment-card__image { width:100%; height:180px; display:block; object-fit:cover; }
 .customer-account-page .customer-appointment-card__body { padding:22px; }
 .customer-account-page .customer-appointment-card__body h3 { margin:9px 0 14px; font-family:Georgia,serif; font-size:21px; }
 .customer-account-page .customer-appointment-card__facts { display:grid; gap:8px; color:#776960; font-size:14px; }
@@ -28,19 +28,7 @@
 .customer-settings-card__title > svg { color:#9a6543; }
 .customer-settings-card h2 { margin:0 0 5px; font-family:Georgia,serif; }
 .customer-settings-card p { margin:0; color:#7a6a61; }
-.customer-photo-editor { display:flex; align-items:center; gap:18px; margin-bottom:26px; }
-.customer-photo { position:relative; display:grid; width:90px; height:90px; flex:0 0 auto; padding:0; place-items:center; overflow:hidden; border:1px solid #ddcabd; border-radius:50%; background:#f3e6dc; color:#87583e; cursor:pointer; }
-.customer-photo > span { font-family:Georgia,serif; font-size:32px; }
-.customer-photo > img { width:100%; height:100%; object-fit:cover; }
-.customer-photo--static { cursor:default; font-family:Georgia,serif; font-size:32px; }
-.customer-photo i { position:absolute; right:3px; bottom:3px; display:grid; width:28px; height:28px; place-items:center; border-radius:50%; background:#84563e; color:#fff; }
-.customer-photo-editor div { display:grid; gap:5px; }
-.customer-text-button { width:fit-content; padding:0; border:0; background:transparent; color:#8a5738; font:inherit; font-weight:700; cursor:pointer; }
-.customer-photo-crop { display:flex; align-items:center; gap:18px; margin:-5px 0 25px; padding:18px; border-radius:14px; background:#faf4ef; }
-.customer-photo-crop > div { width:82px; height:82px; flex:0 0 auto; overflow:hidden; border-radius:50%; }
-.customer-photo-crop img { width:100%; height:100%; object-fit:cover; }
-.customer-photo-crop label { display:grid; flex:1; gap:6px; font-size:13px; }
-.customer-photo-crop button,.customer-form button,.customer-preferences > button { padding:12px 17px; border:0; border-radius:9px; background:#9a6543; color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+.customer-form button,.customer-preferences > button { padding:12px 17px; border:0; border-radius:9px; background:#9a6543; color:#fff; font:inherit; font-weight:700; cursor:pointer; }
 .customer-form { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 .customer-form label { display:grid; gap:7px; color:#59463b; font-size:13px; font-weight:700; }
 .customer-form label:first-child { grid-column:1/-1; }
@@ -77,6 +65,6 @@
 .customer-form-message { max-width:900px; margin:0 auto 20px; padding:13px 16px; border-radius:10px; background:#edf5ed; color:#3e6a45; }
 .customer-form-message.is-error { background:#faece9; color:#934a40; }
 @media(max-width:850px){.customer-appointments-grid{grid-template-columns:1fr 1fr}.customer-form{grid-template-columns:1fr}.customer-form label:first-child{grid-column:auto}}
-@media(max-width:600px){.customer-account-page{padding:35px 14px 70px}.customer-appointments-grid{grid-template-columns:1fr}.customer-settings-card{padding:22px 18px}.customer-photo-crop{align-items:stretch;flex-direction:column}.customer-form--compact{grid-template-columns:1fr}.customer-form>button,.customer-preferences>button,.customer-password-form>button,.customer-secondary-action{width:100%}.customer-security div{flex-direction:column;gap:5px}.customer-security dd{text-align:left}}
+@media(max-width:600px){.customer-account-page{padding:35px 14px 70px}.customer-appointments-grid{grid-template-columns:1fr}.customer-settings-card{padding:22px 18px}.customer-form--compact{grid-template-columns:1fr}.customer-form>button,.customer-preferences>button,.customer-password-form>button,.customer-secondary-action{width:100%}.customer-security div{flex-direction:column;gap:5px}.customer-security dd{text-align:left}}
 *:focus-visible { outline:3px solid rgba(154,101,67,.35); outline-offset:3px; }
 @media(prefers-reduced-motion:reduce){.customer-drawer,.customer-drawer-backdrop{transition:none!important}}

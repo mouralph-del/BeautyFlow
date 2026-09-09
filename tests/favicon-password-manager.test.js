@@ -4,10 +4,10 @@ import fs from "node:fs";
 
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("favicon usa TS lado a lado e mantém o título Beauty Studio", () => {
+test("favicon usa TS lado a lado e mantém o título público do estúdio", () => {
   const html = read("index.html");
   const source = read("public/favicon-source.svg");
-  assert.match(html, /<title>Beauty Studio<\/title>/);
+  assert.match(html, /<title>Thaís Santos Beauty Studio \| Sobrancelhas, Cílios e Cuidados Faciais<\/title>/);
   for (const size of [16, 32, 48]) assert.match(html, new RegExp(`favicon-${size}x${size}\\.png`));
   assert.match(html, /favicon\.ico/);
   assert.match(source, />TS<\/text>/);

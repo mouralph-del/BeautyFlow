@@ -1,7 +1,24 @@
+import { useState } from "react";
 import { CalendarDays, Clock3, Hourglass, UserRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { appointmentStatusLabel, formatAppointmentDate, formatCurrency, getAppointmentImage, getAppointmentValue, normalizeStatus } from "../../utils/customerAppointments";
-import ImageWithFallback from "../Image/ImageWithFallback";
+
+function AppointmentServiceImage({ src, alt }) {
+  const [failedToLoad, setFailedToLoad] = useState(false);
+
+  if (!src || failedToLoad) return null;
+
+  return (
+    <img
+      className="customer-appointment-card__image"
+      src={src}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailedToLoad(true)}
+    />
+  );
+}
 
 const serviceNames = (appointment) => {
   const names = appointment.services?.map((service) => service.name || service.title).filter(Boolean);
@@ -12,7 +29,10 @@ export default function CustomerAppointmentCard({ appointment, featured = false,
   const image = getAppointmentImage(appointment);
   return (
     <article className={`customer-appointment-card${featured ? " customer-appointment-card--featured" : ""}`}>
-      {image ? <ImageWithFallback src={image} alt={`Resultado de ${serviceNames(appointment)}`} /> : <div style={{width:'100%',height:120,background:'#f5efe9'}} aria-hidden="true" />}
+      <AppointmentServiceImage
+        src={image}
+        alt={`Resultado de ${serviceNames(appointment)}`}
+      />
       <div className="customer-appointment-card__body">
         <span className={`customer-status customer-status--${String(appointment.status).toLowerCase()}`}>
           {appointmentStatusLabel(appointment.status)}
