@@ -44,6 +44,20 @@ test("retorna a chave separada do payload EMV usado no QR", async () => {
   assert.ok(payment.pixCopyCode.startsWith("000201"));
 });
 
+for (const amount of [10, 15, 20, 30, 35, 50]) {
+  test(`embute R$ ${amount.toFixed(2)} no BR Code com CRC v\u00e1lido`, async () => {
+    const payment = await createPixPayment({
+      amount,
+      transactionId: "TAXA-RESERVA",
+      config: TEST_CONFIG,
+    });
+    const fields = parsePixFields(payment.pixCopyCode.slice(0, -8));
+
+    assert.equal(fields.get("54"), amount.toFixed(2));
+    assert.ok(hasValidPixCrc(payment.pixCopyCode));
+  });
+}
+
 test("QR Code decodifica exatamente para o Pix Copia e Cola", async () => {
   const payment = await createPayment();
   const png = PNG.sync.read(Buffer.from(payment.qrCodeDataUrl.split(",")[1], "base64"));

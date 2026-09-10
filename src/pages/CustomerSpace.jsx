@@ -60,7 +60,6 @@ export default function CustomerSpace() {
         )}
         <FitRequests requests={fitRequests} onChanged={refresh} />
         {(nextAppointment || reschedules?.[0]) && <RescheduleRequest appointment={nextAppointment} request={reschedules?.[0]} onChanged={refresh} />}
-        {nextAppointment && <section className="customer-cancellation"><h2>Precisa ajustar seus planos?</h2><p>Consulte os detalhes e veja somente as opções disponíveis para o estado atual.</p><Link to={`/minha-conta/agendamentos/${nextAppointment.id}`}>Ver detalhes e opções</Link></section>}
         <blockquote className="customer-closing">“A verdadeira beleza está nos detalhes e no cuidado com cada cliente.”</blockquote>
       </main>
     </Layout>

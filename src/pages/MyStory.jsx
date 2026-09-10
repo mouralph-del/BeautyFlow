@@ -2,6 +2,7 @@ import CertificateGallery from "../components/Certificates/CertificateGallery";
 import colorimetryCertificate from "../assets/certificates/colorimetria-sobrancelhas-2020.jpeg";
 import masterclassCertificate from "../assets/certificates/masterclass-micropigmentacao-2020.jpeg";
 import microbladingCertificate from "../assets/certificates/microblading-fio-a-fio-2023.jpeg";
+import classicLashesCertificate from "../assets/certificates/fio-a-fio-classico-fios-tecnologicos-2026.jpeg";
 import perfectClassicCertificate from "../assets/certificates/perfect-classic-2d-2026.jpeg";
 import thaisStoryPhoto from "../assets/images/thais-minha-historia.jpeg";
 import Layout from "../layouts/Layout";
@@ -54,6 +55,12 @@ const certificates = [
     category: "Especialização",
     name: "Microblading Fio a Fio",
     image: microbladingCertificate,
+  },
+  {
+    year: "2026",
+    category: "Curso",
+    name: "Fio a Fio Clássico e Fios Tecnológicos",
+    image: classicLashesCertificate,
   },
   {
     year: "2026",

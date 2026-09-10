@@ -5,7 +5,7 @@ import test from "node:test";
 import jsQR from "jsqr";
 import { PNG } from "pngjs";
 
-import { createPixPayment, hasValidPixCrc } from "../../src/services/pix.js";
+import { createPixPayment, hasValidPixCrc, sanitizePixText } from "../../src/services/pix.js";
 import { parsePixFields } from "../helpers/pix.js";
 
 const parseEnv = (source) => Object.fromEntries(source.split(/\r?\n/).flatMap((line) => {
@@ -26,7 +26,13 @@ test("configuração local gera payload e QR coerentes sem revelar a chave", asy
   const fields = parsePixFields(payment.pixCopyCode.slice(0, -8));
   const merchant = parsePixFields(fields.get("26"));
   assert.ok(merchant.get("01") === config.key, "A chave no campo Pix deve ser exatamente a configurada");
+  assert.equal(merchant.get("00"), "BR.GOV.BCB.PIX");
   assert.equal(fields.get("54"), "37.50");
+  assert.equal(fields.get("52"), "0000");
+  assert.equal(fields.get("53"), "986");
+  assert.equal(fields.get("58"), "BR");
+  assert.equal(fields.get("59"), sanitizePixText(config.receiverName, 25));
+  assert.equal(fields.get("60"), sanitizePixText(config.receiverCity, 15));
   assert.ok(hasValidPixCrc(payment.pixCopyCode));
 
   const png = PNG.sync.read(Buffer.from(payment.qrCodeDataUrl.split(",")[1], "base64"));

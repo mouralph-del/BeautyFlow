@@ -7,7 +7,6 @@
 
 .customer-welcome,
 .customer-highlights,
-.customer-cancellation,
 .customer-closing,
 .customer-space__error {
   width: min(1120px, 100%);
@@ -123,8 +122,7 @@
   .customer-appointments-carousel__track { transition: none; }
 }
 
-.customer-card h2,
-.customer-cancellation h2 {
+.customer-card h2 {
   margin: 0 0 16px;
   color: #34251e;
   font-family: Georgia, "Times New Roman", serif;
@@ -285,30 +283,6 @@
   background: #9a6543;
 }
 
-.customer-cancellation {
-  margin-top: 48px;
-  padding: 30px;
-  border: 1px solid #eadbd0;
-  border-radius: 18px;
-  background: #fffaf6;
-}
-
-.customer-cancellation p {
-  color: #75675f;
-  line-height: 1.65;
-}
-
-.customer-cancellation a {
-  display: inline-flex;
-  margin-top: 8px;
-  padding: 12px 18px;
-  border: 1px solid #cda990;
-  border-radius: 10px;
-  color: #805a40;
-  font-weight: 700;
-  text-decoration: none;
-}
-
 .customer-closing {
   margin-top: 70px;
   margin-bottom: 0;
@@ -342,10 +316,5 @@
 
   .customer-primary-action {
     width: 100%;
-  }
-
-  .customer-cancellation a {
-    width: 100%;
-    justify-content: center;
   }
 }
