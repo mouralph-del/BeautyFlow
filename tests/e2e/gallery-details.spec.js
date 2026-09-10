@@ -41,6 +41,8 @@ for (const viewport of sizes) {
     await expect(dialog).toContainText("50 minutos");
     await expect(dialog).toContainText("R$ 45,00");
     await expect(dialog.getByRole("img", { name: "Resultado com henna" })).toBeVisible();
+    await expect(dialog.getByRole("img", { name: "Resultado com henna" })).toHaveCSS("object-fit", "contain");
+    await expect(dialog.getByRole("img", { name: "Resultado com henna" })).toHaveCSS("object-position", "50% 0%");
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
     if (viewport.width <= 700) await expect(dialog.locator(".gallery-details-modal__layout")).toHaveCSS("flex-direction", "column");
     await page.keyboard.press("Escape");
@@ -73,8 +75,9 @@ test("múltiplos serviços preservam catálogo, promoção e escolhas de agendam
   await mockMultipleServices(page);
   await page.goto("/galeria");
   await page.getByRole("button", { name: /Ver detalhes de Resultado combinado/i }).nth(1).click();
-  const dialog = page.getByRole("dialog", { name: "Transformação do olhar" });
-  await expect(dialog).toContainText("Descrição exclusiva desta foto.");
+  const dialog = page.getByRole("dialog", { name: "Design Personalizado + Design com Henna" });
+  await expect(dialog).toContainText("Descrição principal do catálogo.");
+  await expect(dialog).toContainText("Descrição do segundo serviço.");
   await expect(dialog).toContainText("Serviços realizados");
   await expect(dialog).toContainText("🔥 Em promoção");
   await expect(dialog).toContainText("R$ 30,00");
@@ -84,4 +87,38 @@ test("múltiplos serviços preservam catálogo, promoção e escolhas de agendam
   await expect(dialog.getByRole("button", { name: "Agendar todos" })).toBeVisible();
   await dialog.getByRole("button", { name: "Agendar somente Design com Henna" }).click();
   await expect(page).toHaveURL(/\/agendamento\/2$/);
+});
+
+test("modal fecha pelo X e pelo backdrop e navega entre mídias", async ({ page }) => {
+  await mockCatalog(page);
+  await page.goto("/galeria");
+  await page.getByRole("button", { name: /Ver detalhes de Resultado com henna/i }).nth(1).click();
+  const dialog = page.getByRole("dialog", { name: "Design com Henna" });
+  await expect(dialog.getByRole("button", { name: "Próxima mídia" })).toBeVisible();
+  await dialog.getByRole("img", { name: "Resultado com henna" }).click();
+  await expect(dialog).toBeVisible();
+  await dialog.locator(".gallery-details-modal__information").click({ position: { x: 8, y: 8 } });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Próxima mídia" }).click();
+  await expect(page.getByRole("dialog", { name: "Resultado" })).toBeVisible();
+  await page.getByRole("button", { name: "Fechar detalhes" }).click();
+  await expect(page.getByRole("dialog")).toBeHidden();
+
+  await page.getByRole("button", { name: /Ver detalhes de Resultado com henna/i }).nth(1).click();
+  await page.locator(".gallery-modal-overlay").click({ position: { x: 2, y: 2 } });
+  await expect(page.getByRole("dialog")).toBeHidden();
+});
+
+test("informações longas rolam somente dentro do modal sem scroll horizontal", async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await mockMultipleServices(page);
+  await page.goto("/galeria");
+  await page.getByRole("button", { name: /Ver detalhes de Resultado combinado/i }).nth(1).click();
+  const dialog = page.getByRole("dialog", { name: "Design Personalizado + Design com Henna" });
+  const information = dialog.locator(".gallery-details-modal__information");
+  await expect(information).toHaveCSS("overflow-y", "auto");
+  await information.hover();
+  await page.mouse.wheel(0, 500);
+  await expect(dialog).toBeVisible();
+  expect(await dialog.evaluate((element) => element.scrollWidth - element.clientWidth)).toBeLessThanOrEqual(1);
 });
