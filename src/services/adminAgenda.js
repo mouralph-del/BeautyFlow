@@ -9,7 +9,7 @@ const dateKey = (date) => {
 export async function getAdminAgenda(start, end) {
   const [appointmentsResult, blocksResult, hoursResult, holidaysResult] = await Promise.all([
     supabase.from("appointments")
-      .select("id, customer_name, phone, email, notes, appointment_date, appointment_time, end_time, duration_minutes, total_duration_minutes, status, payment_status, reservation_paid, service_price, reservation_amount, remaining_amount, completed_at, no_show_at, no_show_reason, created_at")
+      .select("id, customer_name, phone, email, notes, appointment_date, appointment_time, end_time, duration_minutes, total_duration_minutes, status, payment_status, reservation_paid, service_price, reservation_amount, remaining_amount, completed_at, no_show_at, no_show_reason, cancelled_at, cancelled_by, cancelled_by_user_id, reason, created_at")
       .gte("appointment_date", dateKey(start)).lte("appointment_date", dateKey(end))
       .order("appointment_date").order("appointment_time"),
     supabase.from("agenda_blocks").select("*")
@@ -70,6 +70,18 @@ export async function createSpecialSchedule(values) {
 export async function updateAppointment(id, values) {
   const { error } = await supabase.from("appointments").update(values).eq("id", id);
   if (error) throw error;
+}
+
+export async function cancelAdminAppointment({ appointmentId, reason }) {
+  const { data, error } = await supabase.rpc("cancel_admin_appointment", {
+    target_appointment_id: appointmentId,
+    cancellation_reason: reason.trim(),
+  });
+
+  if (error) throw error;
+  if (!data) throw new Error("O cancelamento não foi confirmado pelo sistema.");
+
+  return data;
 }
 
 export async function createManualAppointment(appointment, services) {
