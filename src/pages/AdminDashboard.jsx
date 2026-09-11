@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 
 import AdminLayout from "../components/admin/AdminLayout";
-import AdminNotifications from "../components/admin/AdminNotifications";
 import AppointmentsTable from "../components/admin/AppointmentsTable";
 import CalendarAvailability from "../components/admin/CalendarAvailability";
 import DashboardCard from "../components/admin/DashboardCard";
@@ -15,10 +14,8 @@ import DailyExperience from "../components/admin/DailyExperience";
 import MonthlySummary from "../components/admin/MonthlySummary";
 import MonthlyScheduleRelease from "../components/admin/MonthlyScheduleRelease";
 import PendingList from "../components/admin/PendingList";
-import FirstAccessChecklist from "../components/admin/FirstAccessChecklist";
 import Modal from "../components/Modal/Modal";
 import { getAdminDashboardData } from "../services/adminDashboard";
-import { markNotificationRead } from "../services/adminNotifications";
 import { getScheduleReleaseMonths } from "../utils/monthlySchedule";
 import { useAuth } from "../contexts/useAuth";
 import { getAdminFirstName } from "../utils/dailyExperience";
@@ -50,7 +47,6 @@ function AdminDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [selectedNotification, setSelectedNotification] = useState(null);
   const [referenceDate, setReferenceDate] = useState(() => new Date());
   const [appointmentFilter, setAppointmentFilter] = useState("all");
   const [scheduleReviewSignal, setScheduleReviewSignal] = useState(0);
@@ -208,24 +204,8 @@ function AdminDashboard() {
 
   const notifications = data.notificationUnreadCount;
 
-  const viewNotification = async (notification) => {
-    setSelectedNotification(notification);
-    if (notification.is_read) return;
-    try {
-      await markNotificationRead(notification.id);
-      setData((current) => ({
-        ...current,
-        notificationUnreadCount: Math.max(0, current.notificationUnreadCount - 1),
-        notifications: current.notifications.map((item) => item.id === notification.id ? { ...item, is_read: true } : item),
-      }));
-    } catch {
-      console.error("Não foi possível marcar a notificação como lida.");
-    }
-  };
-
   return (
     <AdminLayout notifications={notifications}>
-      <FirstAccessChecklist />
       <DailyExperience
         data={data}
         name={administratorName}
@@ -315,11 +295,6 @@ function AdminDashboard() {
         reviewSignal={scheduleReviewSignal}
       />
 
-      <AdminNotifications
-        notifications={data.notifications}
-        onViewDetails={viewNotification}
-      />
-
       <div className="admin-overview-bottom-grid">
         <PendingList items={pendingItems} />
         <MonthlySummary summary={monthlySummary} />
@@ -352,25 +327,6 @@ function AdminDashboard() {
           </Modal>
       )}
 
-      {selectedNotification && (
-          <Modal isOpen onClose={() => setSelectedNotification(null)} title="Detalhes da notificação" describedBy="dashboard-notification-message" className="admin-detail-modal" overlayClassName="admin-detail-overlay">
-            <button
-              type="button"
-              onClick={() => setSelectedNotification(null)}
-              aria-label="Fechar"
-            >
-              ×
-            </button>
-            <span>NOTIFICAÇÃO</span>
-            <h3>{selectedNotification.title}</h3>
-            <p id="dashboard-notification-message">{selectedNotification.message}</p>
-            <p>
-              {new Date(selectedNotification.created_at).toLocaleString(
-                "pt-BR"
-              )}
-            </p>
-          </Modal>
-      )}
     </AdminLayout>
   );
 }
