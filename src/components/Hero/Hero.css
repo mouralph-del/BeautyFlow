@@ -414,6 +414,8 @@
 
 @media (max-width: 560px) {
   .home-hero { padding: 38px 16px 34px; }
+  .hero-photo { border-radius: 20px; }
+  .hero-photo > .hero-photo__image { border-radius: inherit; }
   .hero-eyebrow { margin-bottom:14px; font-size:11px; line-height:1.55; }
   .hero-content h1 { font-size:37px; line-height:1.04; letter-spacing:-.6px; }
   .hero-description { margin-top:16px; font-size:15px; line-height:1.65; }
